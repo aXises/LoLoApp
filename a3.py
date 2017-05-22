@@ -4,10 +4,8 @@ Semester 1, 2017
 """
 
 import tkinter as tk
+from base import BaseLoloApp
 
-import model
-import view
-from game_regular import RegularGame
 # # For alternative game modes
 # from game_make13 import Make13Game
 # from game_lucky7 import Lucky7Game
@@ -22,165 +20,64 @@ __version__ = "1.0.2"
 # Once you have created your basic gui (LoloApp), you can delete this class
 # and replace it with the following:
 # from base import BaseLoloApp
-class BaseLoloApp:
-    """Base class for a simple Lolo game."""
-
-    def __init__(self, master, game=None, grid_view=None):
-        """Constructor
-
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
-            game (model.AbstractGame): The game to play. Defaults to a
-                                       game_regular.RegularGame.
-            grid_view (view.GridView): The view to use for the game. Optional.
-
-        Raises:
-            ValueError: If grid_view is supplied, but game is not.
-        """
-        self._master = master
-
-        # Game
-        if game is None:
-            game = RegularGame(types=3)
-
-        self._game = game
-
-        # Grid View
-        if grid_view is None:
-            if game is None:
-                raise ValueError("A grid view cannot be given without a game.")
-            grid_view = view.GridView(master, self._game.grid.size())
-
-        self._grid_view = grid_view
-        self._grid_view.pack()
-
-        self._grid_view.draw(self._game.grid, self._game.find_connections())
-
-        # Events
-        self.bind_events()
-
-    def bind_events(self):
-        """Binds relevant events."""
-        self._grid_view.on('select', self.activate)
-        self._game.on('game_over', self.game_over)
-        self._game.on('score', self.score)
-
-    def create_animation(self, generator, delay=200, func=None, callback=None):
-        """Creates a function which loops through a generator using the tkinter
-        after method to allow for animations to occur
-
-        Parameters:
-            generator (generator): The generator yielding animation steps.
-            delay (int): The delay (in milliseconds) between steps.
-            func (function): The function to call after each step.
-            callback (function): The function to call after all steps.
-
-        Return:
-            (function): The animation runner function.
-        """
-
-        def runner():
-            try:
-                value = next(generator)
-                self._master.after(delay, runner)
-                if func is not None:
-                    func()
-            except StopIteration:
-                if callback is not None:
-                    callback()
-
-        return runner
-
-    def activate(self, position):
-        """Attempts to activate the tile at the given position.
-
-        Parameters:
-            position (tuple<int, int>): Row-column position of the tile.
-
-        Raises:
-            IndexError: If position cannot be activated.
-        """
-        # Magic. Do not touch.
-        if position is None:
-            return
-
-        if self._game.is_resolving():
-            return
-
-        if position in self._game.grid:
-
-            if not self._game.can_activate(position):
-                hell = IndexError("Cannot activate position {}".format(position))
-                raise hell  # he he
-
-            def finish_move():
-                self._grid_view.draw(self._game.grid,
-                                     self._game.find_connections())
-
-            def draw_grid():
-                self._grid_view.draw(self._game.grid)
-
-            animation = self.create_animation(self._game.activate(position),
-                                              func=draw_grid,
-                                              callback=finish_move)
-            animation()
-
-    def remove(self, *positions):
-        """Attempts to remove the tiles at the given positions.
-
-        Parameters:
-            *positions (tuple<int, int>): Row-column position of the tile.
-
-        Raises:
-            IndexError: If position cannot be activated.
-        """
-        if len(positions) is None:
-            return
-
-        if self._game.is_resolving():
-            return
-
-        def finish_move():
-            self._grid_view.draw(self._game.grid,
-                                 self._game.find_connections())
-
-        def draw_grid():
-            self._grid_view.draw(self._game.grid)
-
-        animation = self.create_animation(self._game.remove(*positions),
-                                          func=draw_grid,
-                                          callback=finish_move)
-        animation()
-
-    def reset(self):
-        """Resets the game."""
-        raise NotImplementedError("Abstract method")
-
-    def game_over(self):
-        """Handles the game ending."""
-        raise NotImplementedError("Abstract method")  # no mercy for stooges
-
-    def score(self, points):
-        """Handles increase in score."""
-
-        # Normally, this should raise the following error:
-        # raise NotImplementedError("Abstract method")
-        # But so that the game can work prior to this method being implemented,
-        # we'll just print some information.
-        # Sometimes I believe Python ignores all my comments :(
-        print("Scored {} points. Score is now {}.".format(points,
-                                                          self._game.get_score()))
-        print("Don't forget to override the score method!")
-
 
 # Define your classes here
-class LoloApp (BaseLoloApp) :
 
-    def __init__(self, master, game) :
-        super().__init__(master, game)
+
+class LoloApp(BaseLoloApp):
+
+    def __init__(self, master, game):
+
+        self._LoloLogo = LoloLogo(master)
+        self._LoloLogo.pack(side=tk.TOP, anchor="n", expand=True, fill=tk.BOTH)
+
+        self._StatusBar = StatusBar(master)
+        self._StatusBar.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+        super().__init__(master)
+
         self._master = master
-        self.game = game
-        master.title('Lolo :: %s Mode' % self.game.GAME_NAME)
+        self._game = game
+
+        master.title('Lolo :: %s Mode' % self._game.GAME_NAME)
+
+        menubar = tk.Menu(master)
+        master.config(menu=menubar)
+
+        dropdown = tk.Menu(menubar)
+        menubar.add_cascade(label="File", menu=dropdown)
+        dropdown.add_command(label="New Game", command=self.reset)
+        dropdown.add_command(label="Exit", command=master.destroy)
+
+    def reset(self):
+        pass
+
+class StatusBar(tk.Frame):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        Game = tk.Label(self, text="game")
+        Game.pack(side=tk.LEFT)
+
+        Score = tk.Label(self, text="score")
+        Score.pack(side=tk.RIGHT)
+
+    def set_game(self, game_mode):
+        pass
+
+    def set_score(self, score):
+        pass
+
+
+class LoloLogo(tk.Canvas):
+
+    def __init__(self, canvas):
+        super().__init__()
+
+        self.config(width=200, height=100)
+        self.create_rectangle(20, 100, 30, 20, fill="purple")
+
 
 def main():
     pass
