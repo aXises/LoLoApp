@@ -174,7 +174,13 @@ class BaseLoloApp:
 
 
 # Define your classes here
+class LoloApp (BaseLoloApp) :
 
+    def __init__(self, master, game) :
+        super().__init__(master, game)
+        self._master = master
+        self.game = game
+        master.title('Lolo :: %s Mode' % self.game.GAME_NAME)
 
 def main():
     pass
