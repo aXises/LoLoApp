@@ -4,6 +4,7 @@ Semester 1, 2017
 """
 
 import tkinter as tk
+from random import randint
 from base import BaseLoloApp
 
 # # For alternative game modes
@@ -54,10 +55,31 @@ class LoloApp(BaseLoloApp):
         super().__init__(master, game)
         self._master = master
 
+        self.lightning_available = 1
+        self._lightning_button = tk.Button(master,
+                                           text="Lightning %i" %
+                                           self.lightning_available,
+                                           command=self.lightning)
+        self._lightning_button.pack(side=tk.BOTTOM, pady=5)
+        self.lightning = False
+
+    def lightning(self):
+
+        if not self.lightning:
+            print('lightning on')
+            self._grid_view.on('select', self.activate)
+        else:
+            print('lightning off')
+            self._grid_view.off('select', self.activate)
+
+        self.lightning = not self.lightning
+
+    def activate(self, position):
+        self.remove(position)
+        #print('test')
 
     def score(self, points):
         self._StatusBar.update_score(points)
-        print('update')
 
     @classmethod
     def get_game(cls):
