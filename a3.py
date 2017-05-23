@@ -29,12 +29,14 @@ class LoloApp(BaseLoloApp):
     GAME_NAME = None
 
     def __init__(self, master, game):
+        self._game = game
 
-        GAME_NAME = game.GAME_NAME
+        GAME_NAME = self._game.GAME_NAME
+
         self.set_game(GAME_NAME)
 
         self._LoloLogo = LoloLogo(master)
-        self._LoloLogo.pack(side=tk.TOP, anchor="n", expand=True, fill=tk.BOTH)
+        self._LoloLogo.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
 
         self._StatusBar = StatusBar(master)
         self._StatusBar.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
@@ -49,8 +51,13 @@ class LoloApp(BaseLoloApp):
 
         master.title('Lolo :: %s Mode' % GAME_NAME)
 
-        super().__init__(master)
+        super().__init__(master, game)
+        self._master = master
 
+
+    def score(self, points):
+        self._StatusBar.update_score(points)
+        print('update')
 
     @classmethod
     def get_game(cls):
@@ -60,33 +67,26 @@ class LoloApp(BaseLoloApp):
     def set_game(cls, game_mode):
         cls.GAME_NAME = game_mode
 
-    def get_score(self):
-        pass
-
-    def set_score(self, score):
-        pass
-
     def reset(self):
+        #Todo
+        #self._grid_view.destroy()
+        #self._grid_view.draw(self._game.grid, self._game.find_connections())
         pass
 
 
 class StatusBar(tk.Frame):
 
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self, master):
+        super().__init__(master)
 
-        Game = tk.Label(self, text=LoloApp.get_game())
-        Game.pack(side=tk.LEFT)
-        self.set_gamemode()
+        self._game = tk.Label(self, text=LoloApp.get_game())
+        self._game.pack(side=tk.LEFT)
 
-        Score = tk.Label(self, text="score")
-        Score.pack(side=tk.RIGHT)
+        self._score = tk.Label(self, text="Score: 0")
+        self._score.pack(side=tk.RIGHT)
 
-    def set_gamemode(self):
-        print(LoloApp.get_game())
-
-    def set_score(self, score):
-        pass
+    def update_score(self, points):
+        self._score.config(text="Score: %i" % points)
 
 
 class LoloLogo(tk.Canvas):
