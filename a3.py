@@ -102,14 +102,14 @@ class LoloApp(BaseLoloApp):
             messagebox.showwarning("Invalid Activation",
                                    "You cannot activate this tile")
 
-        lightning_chance = randint(randint(1,5),randint(15,20))
+        lightning_chance = randint(randint(1, 5), randint(15, 20))
         if lightning_chance == 10:
             self._lightning_available += 1
             self._lightning_button.config(state="normal",
                                           text="Lightning %i" %
                                           self._lightning_available)
             if self._lightning_available > 0:
-                self._master.bind('<Control-l>', self.test)
+                self._master.bind('<Control-l>', self.lightning_key)
 
     def score(self, points):
         self._StatusBar.update_score(points)
