@@ -6,7 +6,7 @@ Semester 1, 2017
 import tkinter as tk
 from random import randint
 from base import BaseLoloApp
-import view
+from tkinter import messagebox
 
 # # For alternative game modes
 # from game_make13 import Make13Game
@@ -64,6 +64,7 @@ class LoloApp(BaseLoloApp):
         self._lightning_button.pack(side=tk.BOTTOM, pady=5)
         self._lightning = False
 
+
     def toggle_lightning(self):
         if not self._lightning:
             self._grid_view.off('select', self.activate)
@@ -91,7 +92,12 @@ class LoloApp(BaseLoloApp):
                 self.toggle_lightning()
 
     def activate(self, position):
-        super().activate(position)
+        try:
+            super().activate(position)
+        except IndexError:
+            messagebox.showwarning("Invalid Activation",
+                                   "You cannot activate this tile")
+
         lightning_chance = randint(randint(1,5),randint(15,20))
         if lightning_chance == 10:
             self._lightning_available += 1
@@ -115,6 +121,10 @@ class LoloApp(BaseLoloApp):
         self._grid_view.draw(self._game.grid)
         self._game.set_score(0)
 
+    def game_over(self):
+        if self._lightning_available == 0:
+            messagebox.showwarning("Game over",
+                                   "Better luck next time!")
 
 class StatusBar(tk.Frame):
 
