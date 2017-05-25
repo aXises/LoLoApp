@@ -55,28 +55,50 @@ class LoloApp(BaseLoloApp):
         super().__init__(master, game)
         self._master = master
 
-        self.lightning_available = 1
+        self._lightning_available = 1
         self._lightning_button = tk.Button(master,
                                            text="Lightning %i" %
-                                           self.lightning_available,
-                                           command=self.lightning)
+                                           self._lightning_available,
+                                           command=self.toggle_lightning)
         self._lightning_button.pack(side=tk.BOTTOM, pady=5)
-        self.lightning = False
+        self._lightning = False
 
-    def lightning(self):
-
-        if not self.lightning:
-            print('lightning on')
-            self._grid_view.on('select', self.activate)
+    def toggle_lightning(self):
+        if not self._lightning:
+            self.lightning_on()
         else:
-            print('lightning off')
-            self._grid_view.off('select', self.activate)
+            self.lightning_off()
 
-        self.lightning = not self.lightning
+        self._lightning = not self._lightning
+
+    def lightning_on(self):
+        self._grid_view.off('select', self.activate)
+        self._grid_view.on('select', self.remove)
+        self._lightning_button.config(text="Lightning ACTIVE %i" %
+                                           self._lightning_available)
+
+    def lightning_off(self):
+        self._grid_view.on('select', self.activate)
+        self._grid_view.off('select', self.remove)
+
+    def remove(self, *positions):
+        super().remove(*positions)
+        if self._lightning:
+            self._lightning_available -= 1
+            self._lightning_button.config(text="Lightning ACTIVE %i" %
+                                               self._lightning_available)
+            if self._lightning_available == 0:
+                self._lightning_button.config(state="disabled", text="Lightning %i" %
+                                               self._lightning_available)
+                self.toggle_lightning()
 
     def activate(self, position):
-        self.remove(position)
-        #print('test')
+        super().activate(position)
+        lightning_chance = randint(randint(1,3),randint(18,20))
+        if lightning_chance == 10:
+            self._lightning_available += 1
+            self._lightning_button.config(state="normal", text="Lightning %i" %
+                                               self._lightning_available)
 
     def score(self, points):
         self._StatusBar.update_score(points)
