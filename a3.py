@@ -75,11 +75,13 @@ class LoloApp(BaseLoloApp):
         self._grid_view.off('select', self.activate)
         self._grid_view.on('select', self.remove)
         self._lightning_button.config(text="Lightning ACTIVE %i" %
-                                           self._lightning_available)
+                                      self._lightning_available)
 
     def lightning_off(self):
         self._grid_view.on('select', self.activate)
         self._grid_view.off('select', self.remove)
+        self._lightning_button.config(text="Lightning %i" %
+                                      self._lightning_available)
 
     def remove(self, *positions):
         super().remove(*positions)
@@ -88,8 +90,9 @@ class LoloApp(BaseLoloApp):
             self._lightning_button.config(text="Lightning ACTIVE %i" %
                                                self._lightning_available)
             if self._lightning_available == 0:
-                self._lightning_button.config(state="disabled", text="Lightning %i" %
-                                               self._lightning_available)
+                self._lightning_button.config(state="disabled",
+                                              text="Lightning %i" %
+                                              self._lightning_available)
                 self.toggle_lightning()
 
     def activate(self, position):
@@ -97,8 +100,9 @@ class LoloApp(BaseLoloApp):
         lightning_chance = randint(randint(1,3),randint(18,20))
         if lightning_chance == 10:
             self._lightning_available += 1
-            self._lightning_button.config(state="normal", text="Lightning %i" %
-                                               self._lightning_available)
+            self._lightning_button.config(state="normal",
+                                          text="Lightning %i" %
+                                          self._lightning_available)
 
     def score(self, points):
         self._StatusBar.update_score(points)
