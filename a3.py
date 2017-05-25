@@ -38,7 +38,7 @@ class LoloApp(BaseLoloApp):
         self.set_game(GAME_NAME)
 
         self._LoloLogo = LoloLogo(master)
-        self._LoloLogo.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+        self._LoloLogo.pack(anchor='center')
 
         self._StatusBar = StatusBar(master)
         self._StatusBar.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
@@ -141,9 +141,12 @@ class LoloApp(BaseLoloApp):
         if self._lightning_available == 0:
             messagebox.showwarning("Game over",
                                    "Better luck next time!")
+        else:
+            messagebox.showwarning("Game over",
+                                   "Game over,"+
+                                   "but you still have lightnings left.")
 
 class StatusBar(tk.Frame):
-
 
     def __init__(self, master):
         super().__init__(master)
@@ -162,10 +165,23 @@ class LoloLogo(tk.Canvas):
 
     def __init__(self, canvas):
         super().__init__()
+        self.config(width=400, height=100)
 
-        self.config(width=200, height=100)
-        self.create_rectangle(20, 100, 30, 20, fill="purple")
+        # L
+        self.create_rectangle(15, 100, 35, 20, fill="purple", width=0)
+        self.create_rectangle(15, 80, 95, 100, fill="purple", width=0)
 
+        # O
+        self.create_oval(115, 20, 195, 100, fill="purple", width=0)
+        self.create_oval(145, 55, 175, 85, fill="white", width=0)
+
+        # L
+        self.create_rectangle(215, 100, 235, 20, fill="purple", width=0)
+        self.create_rectangle(215, 80, 295, 100, fill="purple", width=0)
+
+        # O
+        self.create_oval(315, 20, 395, 100, fill="purple", width=0)
+        self.create_oval(345, 55, 375, 85, fill="white", width=0)
 
 def main():
     pass
