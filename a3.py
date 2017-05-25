@@ -8,6 +8,7 @@ from random import randint
 from base import BaseLoloApp
 from tkinter import messagebox
 
+import game_regular
 # # For alternative game modes
 # from game_make13 import Make13Game
 # from game_lucky7 import Lucky7Game
@@ -32,26 +33,27 @@ class LoloApp(BaseLoloApp):
 
     def __init__(self, master, game):
         self._game = game
+        self._master = master
 
         GAME_NAME = self._game.GAME_NAME
 
         self.set_game(GAME_NAME)
 
-        self._LoloLogo = LoloLogo(master)
-        self._LoloLogo.pack(anchor='center')
+        self.LoloLogo = LoloLogo(master)
+        self.LoloLogo.pack(side=tk.TOP)
 
         self._StatusBar = StatusBar(master)
         self._StatusBar.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
         menubar = tk.Menu(master)
-        master.config(menu=menubar)
+        self._master.config(menu=menubar)
 
         dropdown = tk.Menu(menubar)
         menubar.add_cascade(label="File", menu=dropdown)
         dropdown.add_command(label="New Game", command=self.reset)
         dropdown.add_command(label="Exit", command=master.destroy)
 
-        master.title('Lolo :: %s Mode' % GAME_NAME)
+        self._master.title('Lolo :: %s Mode' % GAME_NAME)
 
         super().__init__(master, game)
         self._master = master
@@ -66,6 +68,14 @@ class LoloApp(BaseLoloApp):
 
         self.bind_keys()
 
+    @classmethod
+    def get_game(cls):
+        return cls.GAME_NAME
+
+    @classmethod
+    def set_game(cls, game_mode):
+        cls.GAME_NAME = game_mode
+
     def toggle_lightning(self):
         if not self._lightning:
             self._grid_view.off('select', self.activate)
@@ -79,8 +89,6 @@ class LoloApp(BaseLoloApp):
                                           self._lightning_available)
 
         self._lightning = not self._lightning
-
-        self.bind_keys()
 
     def remove(self, *positions):
         super().remove(*positions)
@@ -114,14 +122,6 @@ class LoloApp(BaseLoloApp):
     def score(self, points):
         self._StatusBar.update_score(points)
 
-    @classmethod
-    def get_game(cls):
-        return cls.GAME_NAME
-
-    @classmethod
-    def set_game(cls, game_mode):
-        cls.GAME_NAME = game_mode
-
     def bind_keys(self):
         self._master.bind('<Control-n>', self.reset_key)
         self._master.bind('<Control-l>', self.lightning_key)
@@ -143,8 +143,9 @@ class LoloApp(BaseLoloApp):
                                    "Better luck next time!")
         else:
             messagebox.showwarning("Game over",
-                                   "Game over,"+
+                                   "Game over," +
                                    "but you still have lightnings left.")
+
 
 class StatusBar(tk.Frame):
 
@@ -164,7 +165,8 @@ class StatusBar(tk.Frame):
 class LoloLogo(tk.Canvas):
 
     def __init__(self, canvas):
-        super().__init__()
+        super().__init__(canvas)
+
         self.config(width=400, height=100)
 
         # L
@@ -183,9 +185,55 @@ class LoloLogo(tk.Canvas):
         self.create_oval(315, 20, 395, 100, fill="purple", width=0)
         self.create_oval(345, 55, 375, 85, fill="white", width=0)
 
+
+class LoadingScreen:
+
+    def __init__(self, master):
+
+        self._master = master
+
+        self._master.geometry("1000x600")
+        self._master.title("Lolo")
+
+        self.LoloLogo = LoloLogo(master)
+        self.LoloLogo.pack(anchor="center", expand=True)
+
+        self._left_frame = tk.Frame(master)
+        self._left_frame.pack(side=tk.LEFT, anchor="w", expand=True, padx=20,
+                              pady=20, fill=tk.X)
+
+        self._right_frame = tk.Frame(master)
+        self._right_frame.pack(side=tk.RIGHT, anchor="e", expand=False, padx=20,
+                               pady=20)
+
+        self._play_game = tk.Button(self._left_frame, text="New Game",
+                                    command=self.new_game)
+        self._play_game.pack(side=tk.TOP, ipadx=63, pady=30)
+
+        self._highscore = tk.Button(self._left_frame, text="High Scores")
+        self._highscore.pack(side=tk.TOP, ipadx=60, pady=30)
+
+        self._exit = tk.Button(self._left_frame, text="Exit Game",
+                               command=self._master.destroy)
+        self._exit.pack(side=tk.TOP, ipadx=66, pady=30)
+
+        loading_lolo = AutoPlay(self._right_frame)
+
+    @staticmethod
+    def new_game():
+        game = game_regular.RegularGame()
+        # game = game_make13.Make13Game()
+        # game = game_lucky7.Lucky7Game()
+        # game = game_unlimited.UnlimitedGame()
+        window = tk.Toplevel()
+        LoloGame = LoloApp(window, game)
+
+
 def main():
-    pass
-    # Your GUI instantiation code here
+
+    root = tk.Tk()
+    window = LoadingScreen(root)
+    root.mainloop()
 
 
 if __name__ == "__main__":
