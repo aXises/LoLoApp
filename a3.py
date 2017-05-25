@@ -64,6 +64,7 @@ class LoloApp(BaseLoloApp):
         self._lightning_button.pack(side=tk.BOTTOM, pady=5)
         self._lightning = False
 
+        self.bind_keys()
 
     def toggle_lightning(self):
         if not self._lightning:
@@ -79,6 +80,8 @@ class LoloApp(BaseLoloApp):
 
         self._lightning = not self._lightning
 
+        self.bind_keys()
+
     def remove(self, *positions):
         super().remove(*positions)
         if self._lightning:
@@ -89,6 +92,7 @@ class LoloApp(BaseLoloApp):
                 self._lightning_button.config(state="disabled",
                                               text="Lightning %i" %
                                               self._lightning_available)
+                self._master.unbind('<Control-l>')
                 self.toggle_lightning()
 
     def activate(self, position):
@@ -104,6 +108,8 @@ class LoloApp(BaseLoloApp):
             self._lightning_button.config(state="normal",
                                           text="Lightning %i" %
                                           self._lightning_available)
+            if self._lightning_available > 0:
+                self._master.bind('<Control-l>', self.test)
 
     def score(self, points):
         self._StatusBar.update_score(points)
@@ -115,6 +121,16 @@ class LoloApp(BaseLoloApp):
     @classmethod
     def set_game(cls, game_mode):
         cls.GAME_NAME = game_mode
+
+    def bind_keys(self):
+        self._master.bind('<Control-n>', self.reset_key)
+        self._master.bind('<Control-l>', self.lightning_key)
+
+    def lightning_key(self, event):
+        self.toggle_lightning()
+
+    def reset_key(self, event):
+        self.reset()
 
     def reset(self):
         self._game.reset()
