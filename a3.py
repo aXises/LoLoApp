@@ -6,6 +6,7 @@ Semester 1, 2017
 import tkinter as tk
 from random import randint
 from base import BaseLoloApp
+import view
 
 # # For alternative game modes
 # from game_make13 import Make13Game
@@ -65,23 +66,17 @@ class LoloApp(BaseLoloApp):
 
     def toggle_lightning(self):
         if not self._lightning:
-            self.lightning_on()
+            self._grid_view.off('select', self.activate)
+            self._grid_view.on('select', self.remove)
+            self._lightning_button.config(text="Lightning ACTIVE %i" %
+                                          self._lightning_available)
         else:
-            self.lightning_off()
+            self._grid_view.on('select', self.activate)
+            self._grid_view.off('select', self.remove)
+            self._lightning_button.config(text="Lightning %i" %
+                                          self._lightning_available)
 
         self._lightning = not self._lightning
-
-    def lightning_on(self):
-        self._grid_view.off('select', self.activate)
-        self._grid_view.on('select', self.remove)
-        self._lightning_button.config(text="Lightning ACTIVE %i" %
-                                      self._lightning_available)
-
-    def lightning_off(self):
-        self._grid_view.on('select', self.activate)
-        self._grid_view.off('select', self.remove)
-        self._lightning_button.config(text="Lightning %i" %
-                                      self._lightning_available)
 
     def remove(self, *positions):
         super().remove(*positions)
@@ -97,7 +92,7 @@ class LoloApp(BaseLoloApp):
 
     def activate(self, position):
         super().activate(position)
-        lightning_chance = randint(randint(1,3),randint(18,20))
+        lightning_chance = randint(randint(1,5),randint(15,20))
         if lightning_chance == 10:
             self._lightning_available += 1
             self._lightning_button.config(state="normal",
@@ -116,13 +111,13 @@ class LoloApp(BaseLoloApp):
         cls.GAME_NAME = game_mode
 
     def reset(self):
-        #Todo
-        #self._grid_view.destroy()
-        #self._grid_view.draw(self._game.grid, self._game.find_connections())
-        pass
+        self._game.reset()
+        self._grid_view.draw(self._game.grid)
+        self._game.set_score(0)
 
 
 class StatusBar(tk.Frame):
+
 
     def __init__(self, master):
         super().__init__(master)
