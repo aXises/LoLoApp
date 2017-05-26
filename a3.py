@@ -65,6 +65,7 @@ class LoloApp(BaseLoloApp):
                                            command=self.toggle_lightning)
         self._lightning_button.pack(side=tk.BOTTOM, pady=5)
         self._lightning = False
+        self._lightning_is_disabled = False
 
         self.bind_keys()
 
@@ -78,46 +79,63 @@ class LoloApp(BaseLoloApp):
 
     def toggle_lightning(self):
         if not self._lightning:
-            self._grid_view.off('select', self.activate)
-            self._grid_view.on('select', self.remove)
-            self._lightning_button.config(text="Lightning ACTIVE %i" %
-                                          self._lightning_available)
+            self.lightining_on()
         else:
-            self._grid_view.on('select', self.activate)
-            self._grid_view.off('select', self.remove)
-            self._lightning_button.config(text="Lightning %i" %
-                                          self._lightning_available)
+            self.lightning_off()
 
         self._lightning = not self._lightning
+
+    def lightining_on(self):
+        self._grid_view.off('select', self.activate)
+        self._grid_view.on('select', self.remove)
+        self.update_active_lightning()
+
+    def lightning_off(self):
+        self._grid_view.on('select', self.activate)
+        self._grid_view.off('select', self.remove)
+        self.update_lightning()
+
+    def lightning_disabled(self):
+        self._lightning_button.config(state="disabled")
+        self.update_active_lightning()
+        self._master.unbind('<Control-l>')
+        self._lightning_is_disabled = True
+
+    def lightning_enabled(self):
+        self._lightning_button.config(state="normal")
+        self.update_lightning()
+        self._lightning_is_disabled = False
+
+    def update_lightning(self):
+        self._lightning_button.config(text="Lightning %i" %
+                                      self._lightning_available)
+
+    def update_active_lightning(self):
+        self._lightning_button.config(text="Lightning ACTIVE %i" %
+                                      self._lightning_available)
 
     def remove(self, *positions):
         super().remove(*positions)
         if self._lightning:
             self._lightning_available -= 1
-            self._lightning_button.config(text="Lightning ACTIVE %i" %
-                                               self._lightning_available)
+            self.update_active_lightning()
             if self._lightning_available == 0:
-                self._lightning_button.config(state="disabled",
-                                              text="Lightning %i" %
-                                              self._lightning_available)
-                self._master.unbind('<Control-l>')
+                self.lightning_disabled()
                 self.toggle_lightning()
 
     def activate(self, position):
-        try:
-            super().activate(position)
-        except IndexError:
+        if not self._game.can_activate(position):
             messagebox.showwarning("Invalid Activation",
                                    "You cannot activate this tile")
+        else:
+            lightning_chance = randint(1, 20)
+            if lightning_chance == 10:
+                self._lightning_available += 1
+                self.lightning_enabled()
+                if self._lightning_available > 0:
+                    self._master.bind('<Control-l>', self.lightning_key)
 
-        lightning_chance = randint(randint(1, 5), randint(15, 20))
-        if lightning_chance == 10:
-            self._lightning_available += 1
-            self._lightning_button.config(state="normal",
-                                          text="Lightning %i" %
-                                          self._lightning_available)
-            if self._lightning_available > 0:
-                self._master.bind('<Control-l>', self.lightning_key)
+        super().activate(position)
 
     def score(self, points):
         self._StatusBar.update_score(points)
@@ -135,7 +153,15 @@ class LoloApp(BaseLoloApp):
     def reset(self):
         self._game.reset()
         self._grid_view.draw(self._game.grid)
+        self._lightning_available = 1
         self._game.set_score(0)
+        self.update_lightning()
+
+        if self._lightning_is_disabled:
+            self.lightning_enabled()
+
+        if self._lightning:
+            self.toggle_lightning()
 
     def game_over(self):
         if self._lightning_available == 0:
@@ -186,13 +212,19 @@ class LoloLogo(tk.Canvas):
         self.create_oval(345, 55, 375, 85, fill="white", width=0)
 
 
+class AutoPlayingGame(BaseLoloApp):
+
+    def __init__(self, master):
+        super().__init__(master)
+
+
 class LoadingScreen:
 
     def __init__(self, master):
 
         self._master = master
 
-        self._master.geometry("1000x600")
+        self._master.geometry("1000x700")
         self._master.title("Lolo")
 
         self.LoloLogo = LoloLogo(master)
@@ -217,7 +249,7 @@ class LoadingScreen:
                                command=self._master.destroy)
         self._exit.pack(side=tk.TOP, ipadx=66, pady=30)
 
-        loading_lolo = AutoPlay(self._right_frame)
+        loading_lolo = AutoPlayingGame(self._right_frame)
 
     @staticmethod
     def new_game():
