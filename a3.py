@@ -218,11 +218,13 @@ class AutoPlayingGame(BaseLoloApp):
         super().__init__(master)
         self._master = master
         self.play()
-        self._master.after(1500, self.play)
+        self._master.after(2000, self.play)
 
     def play(self):
+        row_size = self.max_row_size()
+        col_size= self.max_col_size()
         try:
-            position = (randint(0, 5), randint(0, 5))
+            position = (randint(0, row_size), randint(0, col_size))
             if position in self._game.grid:
                 if self._game.can_activate(position):
                     self.activate(position)
@@ -230,9 +232,29 @@ class AutoPlayingGame(BaseLoloApp):
                     while not self._game.is_resolving():
                         self.play()
 
-            self._master.after(1500, self.play)
+            self._master.after(2000, self.play)
         except RecursionError:
             self.reset()
+
+    def max_row_size(self):
+        row = 0
+        position = (row, 0)
+        while position in self._game.grid:
+            row += 1
+            position = (row, 0)
+            if position not in self._game.grid:
+                break
+        return row - 1
+
+    def max_col_size(self):
+        col = 0
+        position = (col, 0)
+        while position in self._game.grid:
+            col += 1
+            position = (col, 0)
+            if position not in self._game.grid:
+                break
+        return col - 1
 
     def game_over(self):
         self.reset()
