@@ -7,6 +7,7 @@ import tkinter as tk
 from random import randint
 from base import BaseLoloApp
 from tkinter import messagebox
+from highscores import HighScoreManager
 
 import game_regular
 # # For alternative game modes
@@ -18,11 +19,6 @@ __author__ = "<Your name here>"
 __email__ = "<Your student email here>"
 
 __version__ = "1.0.2"
-
-
-# Once you have created your basic gui (LoloApp), you can delete this class
-# and replace it with the following:
-# from base import BaseLoloApp
 
 # Define your classes here
 
@@ -219,10 +215,11 @@ class AutoPlayingGame(BaseLoloApp):
         self._master = master
         self.play()
         self._master.after(2000, self.play)
+        self._grid_view.off('select', self.activate)
 
     def play(self):
         row_size = self.max_row_size()
-        col_size= self.max_col_size()
+        col_size = self.max_col_size()
         try:
             position = (randint(0, row_size), randint(0, col_size))
             if position in self._game.grid:
@@ -267,6 +264,70 @@ class AutoPlayingGame(BaseLoloApp):
         pass
 
 
+class Replay(BaseLoloApp):
+
+    def __init__(self, master):
+        super().__init__(master)
+        self._master = master
+
+
+class HighScore(HighScoreManager):
+
+    def __init__(self, master):
+        super().__init__()
+        self._master = master
+        self._master.title("High Scores :: Lolo")
+
+        self._best_player = self.get_sorted_data()
+        self._best_player_score = self.get_sorted_data()
+
+        self._best_player_label = tk.Label(self._master,
+                                           text="Best Player: " +
+                                           self._best_player[0]['name'] +
+                                           " with " +
+                                           str(self._best_player_score[0]['score']) +
+                                           " points!")
+        self._best_player_label.pack()
+
+        replay = Replay(self._master)
+
+        self._lb_label = tk.Label(self._master, text="Leaderboard")
+        self._lb_label.pack()
+
+        text_leaderboard = TextLeaderboard(self._master)
+
+
+class TextLeaderboard(HighScoreManager):
+
+    def __init__(self, master):
+        self._master = master
+
+        super().__init__()
+        self.load()
+
+        self._row = 0
+        self._frames = 0
+        self._new_frames = []
+        while self._frames < len(self.get_data()):
+            self._new_frames.append("frame" + str(self._frames))
+            self._frames += 1
+
+        for data in self.get_sorted_data():
+            self.add_row(data['name'], data['score'])
+
+    def add_row(self, name, score):
+        self._new_frames[self._row] = tk.Frame(self._master)
+        self._new_frames[self._row].pack(fill=tk.X, padx=20)
+
+        name = tk.Label(self._new_frames[self._row], text=name)
+        name.pack(side=tk.LEFT)
+
+        score = tk.Label(self._new_frames[self._row], text=score)
+        score.pack(side=tk.RIGHT)
+
+        self._row += 1
+
+
 class LoadingScreen:
 
     def __init__(self, master):
@@ -291,7 +352,8 @@ class LoadingScreen:
                                     command=self.new_game)
         self._play_game.pack(side=tk.TOP, ipadx=63, pady=30)
 
-        self._highscore = tk.Button(self._left_frame, text="High Scores")
+        self._highscore = tk.Button(self._left_frame, text="High Scores",
+                                    command=self.highscore)
         self._highscore.pack(side=tk.TOP, ipadx=60, pady=30)
 
         self._exit = tk.Button(self._left_frame, text="Exit Game",
@@ -308,6 +370,10 @@ class LoadingScreen:
         # game = game_unlimited.UnlimitedGame()
         window = tk.Toplevel()
         LoloGame = LoloApp(window, game)
+
+    def highscore(self):
+        window = tk.Toplevel()
+        highscores = HighScore(window)
 
 
 def main():
