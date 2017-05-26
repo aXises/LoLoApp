@@ -216,6 +216,33 @@ class AutoPlayingGame(BaseLoloApp):
 
     def __init__(self, master):
         super().__init__(master)
+        self._master = master
+        self.play()
+        self._master.after(1500, self.play)
+
+    def play(self):
+        try:
+            position = (randint(0, 5), randint(0, 5))
+            if position in self._game.grid:
+                if self._game.can_activate(position):
+                    self.activate(position)
+                else:
+                    while not self._game.is_resolving():
+                        self.play()
+
+            self._master.after(1500, self.play)
+        except RecursionError:
+            self.reset()
+
+    def game_over(self):
+        self.reset()
+
+    def reset(self):
+        self._game.reset()
+        self._grid_view.draw(self._game.grid)
+
+    def score(self, points):
+        pass
 
 
 class LoadingScreen:
