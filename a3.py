@@ -270,6 +270,10 @@ class AutoPlayingGame(BaseLoloApp):
         self._game.reset()
         self._grid_view.draw(self._game.grid)
 
+    def score(self, points):
+        pass
+
+
 class Replay:
 
     def __init__(self, master, game):
@@ -305,22 +309,24 @@ class HighScore(HighScoreManager):
         self.load()
         self._row = 0
         self._frames = 0
-        self._new_frames = []
+        self._new_frame = []
         while self._frames < len(self.get_data()):
-            self._new_frames.append("frame" + str(self._frames))
+            self._new_frame.append("frame" + str(self._frames))
             self._frames += 1
+            if self._frames > 15:
+                break
 
         for data in self.get_sorted_data():
             self.add_row(data['name'], data['score'])
 
     def add_row(self, name, score):
-        self._new_frames[self._row] = tk.Frame(self._master)
-        self._new_frames[self._row].pack(fill=tk.X, padx=20)
+        self._new_frame[self._row] = tk.Frame(self._master)
+        self._new_frame[self._row].pack(fill=tk.X, padx=20)
 
-        name = tk.Label(self._new_frames[self._row], text=name)
+        name = tk.Label(self._new_frame[self._row], text=name)
         name.pack(side=tk.LEFT)
 
-        score = tk.Label(self._new_frames[self._row], text=score)
+        score = tk.Label(self._new_frame[self._row], text=score)
         score.pack(side=tk.RIGHT)
 
         self._row += 1
