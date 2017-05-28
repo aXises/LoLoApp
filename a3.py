@@ -14,9 +14,9 @@ import model
 
 import game_regular
 # # For alternative game modes
-# from game_make13 import Make13Game
-# from game_lucky7 import Lucky7Game
-# from game_unlimited import UnlimitedGame
+from game_make13 import Make13Game
+from game_lucky7 import Lucky7Game
+from game_unlimited import UnlimitedGame
 
 __author__ = "<Your name here>"
 __email__ = "<Your student email here>"
@@ -178,6 +178,7 @@ class LoloApp(BaseLoloApp):
                                 self._game.grid,
                                 self._player_name)
 
+
 class StatusBar(tk.Frame):
 
     def __init__(self, master):
@@ -329,6 +330,63 @@ class HighScore(HighScoreManager):
         self._row += 1
 
 
+class GameMode:
+
+    GAME_MODE = "regular"
+
+    def __init__(self, master):
+        self._master = master
+        self._game_mode = 'regular'
+        self._game = tk.StringVar()
+
+        regular_mode = tk.Radiobutton(self._master,
+                                      text="Regular Mode",
+                                      variable=self._game,
+                                      value='regular',
+                                      command=self.set_game)
+        regular_mode.pack()
+        regular_mode.invoke()
+
+        make13_mode = tk.Radiobutton(self._master,
+                                     text="Make 13 Mode",
+                                     variable=self._game,
+                                     value='make13',
+                                     command=self.set_game)
+        make13_mode.pack()
+
+        lucky7_mode = tk.Radiobutton(self._master,
+                                     text="Lucky 7 Mode",
+                                     variable=self._game,
+                                     value='lucky7',
+                                     command=self.set_game)
+        lucky7_mode.pack()
+
+        unlimited_mode = tk.Radiobutton(self._master,
+                                        text="Unlimited Mode",
+                                        variable=self._game,
+                                        value='unlimited',
+                                        command=self.set_game)
+        unlimited_mode.pack()
+
+    def set_game(self):
+        self.set_class_var(self._game.get())
+
+    @classmethod
+    def set_class_var(cls, game_mode):
+        cls.GAME_MODE = game_mode
+
+    @classmethod
+    def get_game(cls):
+        if cls.GAME_MODE == "regular":
+            return game_regular.RegularGame()
+        elif cls.GAME_MODE == "make13":
+            return Make13Game()
+        elif cls.GAME_MODE == "lucky7":
+            return Lucky7Game()
+        elif cls.GAME_MODE == "unlimited":
+            return UnlimitedGame()
+
+
 class LoadingScreen:
 
     def __init__(self, master):
@@ -362,6 +420,10 @@ class LoadingScreen:
                                     command=self.new_game)
         self._play_game.pack(side=tk.TOP, ipadx=63, pady=30)
 
+        self._game_mode = tk.Button(self._left_frame, text="Game mode",
+                                    command=self.game_mode)
+        self._game_mode.pack(side=tk.TOP, ipadx=63, pady=30)
+
         self._highscore = tk.Button(self._left_frame, text="High Scores",
                                     command=self.highscore)
         self._highscore.pack(side=tk.TOP, ipadx=60, pady=30)
@@ -379,10 +441,7 @@ class LoadingScreen:
             messagebox.showwarning("Please enter a name.",
                                    "Please enter a name.")
         else:
-            game = game_regular.RegularGame()
-            # game = Make13Game()
-            # game = Lucky7Game()
-            # game = UnlimitedGame()
+            game = GameMode.get_game()
             window = tk.Toplevel()
             LoloGame = LoloApp(window, game, player_name)
 
@@ -390,6 +449,9 @@ class LoadingScreen:
         window = tk.Toplevel()
         highscores = HighScore(window)
 
+    def game_mode(self):
+        window = tk.Toplevel()
+        game_mode = GameMode(window)
 
 def main():
 
