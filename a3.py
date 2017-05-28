@@ -8,6 +8,9 @@ from random import randint
 from base import BaseLoloApp
 from tkinter import messagebox
 from highscores import HighScoreManager
+from tile_generators import LoadedGenerator
+import view
+import model
 
 import game_regular
 # # For alternative game modes
@@ -245,10 +248,10 @@ class AutoPlayingGame(BaseLoloApp):
 
     def max_col_size(self):
         col = 0
-        position = (col, 0)
+        position = (0, col)
         while position in self._game.grid:
             col += 1
-            position = (col, 0)
+            position = (0, col)
             if position not in self._game.grid:
                 break
         return col - 1
@@ -264,11 +267,12 @@ class AutoPlayingGame(BaseLoloApp):
         pass
 
 
-class Replay(BaseLoloApp):
+class Replay:
 
-    def __init__(self, master):
-        super().__init__(master)
-        self._master = master
+    def __init__(self, master, game):
+        grid_view = view.GridView(master, game.grid.size())
+        grid_view.pack()
+        grid_view.draw(game.grid)
 
 
 class HighScore(HighScoreManager):
@@ -279,17 +283,18 @@ class HighScore(HighScoreManager):
         self._master.title("High Scores :: Lolo")
 
         self._best_player = self.get_sorted_data()
-        self._best_player_score = self.get_sorted_data()
 
         self._best_player_label = tk.Label(self._master,
                                            text="Best Player: " +
                                            self._best_player[0]['name'] +
                                            " with " +
-                                           str(self._best_player_score[0]['score']) +
+                                           str(self._best_player[0]['score']) +
                                            " points!")
         self._best_player_label.pack()
 
-        replay = Replay(self._master)
+        generator = LoadedGenerator(self._best_player[0]['grid'])
+        game =  model.AbstractGame((6,6), generator, 3)
+        replay = Replay(self._master, game)
 
         self._lb_label = tk.Label(self._master, text="Leaderboard")
         self._lb_label.pack()
@@ -303,8 +308,8 @@ class TextLeaderboard(HighScoreManager):
         self._master = master
 
         super().__init__()
-        self.load()
 
+        self.load()
         self._row = 0
         self._frames = 0
         self._new_frames = []
