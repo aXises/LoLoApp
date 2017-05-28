@@ -34,9 +34,7 @@ class LoloApp(BaseLoloApp):
         self._game = game
         self._master = master
 
-        GAME_NAME = self._game.GAME_NAME
-
-        self.set_game(GAME_NAME)
+        self.set_game(self._game.GAME_NAME)
 
         self.LoloLogo = LoloLogo(master)
         self.LoloLogo.pack(side=tk.TOP)
@@ -52,7 +50,7 @@ class LoloApp(BaseLoloApp):
         dropdown.add_command(label="New Game", command=self.reset)
         dropdown.add_command(label="Exit", command=master.destroy)
 
-        self._master.title('Lolo :: %s Mode' % GAME_NAME)
+        self._master.title('Lolo :: %s Mode' % self._game.GAME_NAME)
 
         super().__init__(master, game)
         self._master = master
@@ -293,21 +291,11 @@ class HighScore(HighScoreManager):
         self._best_player_label.pack()
 
         generator = LoadedGenerator(self._best_player[0]['grid'])
-        game =  model.AbstractGame((6,6), generator, 3)
+        game = model.AbstractGame((6, 6), generator, 3)
         replay = Replay(self._master, game)
 
         self._lb_label = tk.Label(self._master, text="Leaderboard")
         self._lb_label.pack()
-
-        text_leaderboard = TextLeaderboard(self._master)
-
-
-class TextLeaderboard(HighScoreManager):
-
-    def __init__(self, master):
-        self._master = master
-
-        super().__init__()
 
         self.load()
         self._row = 0
@@ -370,9 +358,9 @@ class LoadingScreen:
     @staticmethod
     def new_game():
         game = game_regular.RegularGame()
-        # game = game_make13.Make13Game()
-        # game = game_lucky7.Lucky7Game()
-        # game = game_unlimited.UnlimitedGame()
+        # game = Make13Game()
+        # game = Lucky7Game()
+        # game = UnlimitedGame()
         window = tk.Toplevel()
         LoloGame = LoloApp(window, game)
 
