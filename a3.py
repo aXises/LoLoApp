@@ -30,9 +30,10 @@ class LoloApp(BaseLoloApp):
 
     GAME_NAME = None
 
-    def __init__(self, master, game):
+    def __init__(self, master, game, player_name):
         self._game = game
         self._master = master
+        self._player_name = player_name
 
         self.set_game(self._game.GAME_NAME)
 
@@ -49,6 +50,7 @@ class LoloApp(BaseLoloApp):
         menubar.add_cascade(label="File", menu=dropdown)
         dropdown.add_command(label="New Game", command=self.reset)
         dropdown.add_command(label="Exit", command=master.destroy)
+        #dropdown.add_command(label="record score test", command=self.record_score)
 
         self._master.title('Lolo :: %s Mode' % self._game.GAME_NAME)
 
@@ -164,11 +166,17 @@ class LoloApp(BaseLoloApp):
         if self._lightning_available == 0:
             messagebox.showwarning("Game over",
                                    "Better luck next time!")
+            #self.record_score()
         else:
             messagebox.showwarning("Game over",
                                    "Game over," +
                                    "but you still have lightnings left.")
 
+    def record_score(self):
+        #todo
+        HighScoreManager.record(self._game.get_score(),
+                                self._game.grid,
+                                self._player_name)
 
 class StatusBar(tk.Frame):
 
@@ -330,14 +338,23 @@ class LoadingScreen:
         self._master.geometry("1000x700")
         self._master.title("Lolo")
 
-        self.LoloLogo = LoloLogo(master)
+        self.LoloLogo = LoloLogo(self._master)
         self.LoloLogo.pack(anchor="center", expand=True)
 
-        self._left_frame = tk.Frame(master)
+        self._entry_frame = tk.Frame(self._master)
+        self._entry_frame.pack()
+
+        self._player_name = tk.Entry(self._entry_frame)
+        self._player_name.pack(side=tk.RIGHT)
+
+        self._your_name = tk.Label(self._entry_frame, text="Your Name :")
+        self._your_name.pack(side=tk.LEFT)
+
+        self._left_frame = tk.Frame(self._master)
         self._left_frame.pack(side=tk.LEFT, anchor="w", expand=True, padx=20,
                               pady=20, fill=tk.X)
 
-        self._right_frame = tk.Frame(master)
+        self._right_frame = tk.Frame(self._master)
         self._right_frame.pack(side=tk.RIGHT, anchor="e", expand=False, padx=20,
                                pady=20)
 
@@ -355,14 +372,20 @@ class LoadingScreen:
 
         loading_lolo = AutoPlayingGame(self._right_frame)
 
-    @staticmethod
-    def new_game():
-        game = game_regular.RegularGame()
-        # game = Make13Game()
-        # game = Lucky7Game()
-        # game = UnlimitedGame()
-        window = tk.Toplevel()
-        LoloGame = LoloApp(window, game)
+    def new_game(self):
+        player_name = self._player_name.get()
+
+        if player_name == '':
+            messagebox.showwarning("Please enter a name.",
+                                   "Please enter a name.")
+        else:
+            print(player_name)
+            game = game_regular.RegularGame()
+            # game = Make13Game()
+            # game = Lucky7Game()
+            # game = UnlimitedGame()
+            window = tk.Toplevel()
+            LoloGame = LoloApp(window, game, player_name)
 
     def highscore(self):
         window = tk.Toplevel()
