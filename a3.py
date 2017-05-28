@@ -379,7 +379,6 @@ class LoadingScreen:
             messagebox.showwarning("Please enter a name.",
                                    "Please enter a name.")
         else:
-            print(player_name)
             game = game_regular.RegularGame()
             # game = Make13Game()
             # game = Lucky7Game()
