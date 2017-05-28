@@ -270,10 +270,6 @@ class AutoPlayingGame(BaseLoloApp):
         self._game.reset()
         self._grid_view.draw(self._game.grid)
 
-    def score(self, points):
-        pass
-
-
 class Replay:
 
     def __init__(self, master, game):
@@ -336,37 +332,21 @@ class GameMode:
 
     def __init__(self, master):
         self._master = master
-        self._game_mode = 'regular'
         self._game = tk.StringVar()
+        game_modes = ["regular",
+                      "make13",
+                      "lucky7",
+                      "unlimited"]
 
-        regular_mode = tk.Radiobutton(self._master,
-                                      text="Regular Mode",
-                                      variable=self._game,
-                                      value='regular',
-                                      command=self.set_game)
-        regular_mode.pack()
-        regular_mode.invoke()
-
-        make13_mode = tk.Radiobutton(self._master,
-                                     text="Make 13 Mode",
-                                     variable=self._game,
-                                     value='make13',
-                                     command=self.set_game)
-        make13_mode.pack()
-
-        lucky7_mode = tk.Radiobutton(self._master,
-                                     text="Lucky 7 Mode",
-                                     variable=self._game,
-                                     value='lucky7',
-                                     command=self.set_game)
-        lucky7_mode.pack()
-
-        unlimited_mode = tk.Radiobutton(self._master,
-                                        text="Unlimited Mode",
-                                        variable=self._game,
-                                        value='unlimited',
-                                        command=self.set_game)
-        unlimited_mode.pack()
+        for game_mode in game_modes:
+            mode_button = tk.Radiobutton(self._master,
+                                         text=game_mode.title()+" mode",
+                                         variable=self._game,
+                                         value=game_mode,
+                                         command=self.set_game)
+            mode_button.pack()
+            if game_mode == "regular":
+                mode_button.invoke()
 
     def set_game(self):
         self.set_class_var(self._game.get())
