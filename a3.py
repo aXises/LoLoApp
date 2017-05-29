@@ -5,16 +5,16 @@ Semester 1, 2017
 
 import tkinter as tk
 from random import randint
-from base import BaseLoloApp
 from tkinter import messagebox
-from highscores import HighScoreManager
-import view
 
 import game_regular
+import view
+from base import BaseLoloApp
+from game_lucky7 import Lucky7Game
 # # For alternative game modes
 from game_make13 import Make13Game
-from game_lucky7 import Lucky7Game
 from game_unlimited import UnlimitedGame
+from highscores import HighScoreManager
 
 __author__ = "<Your name here>"
 __email__ = "<Your student email here>"
@@ -233,7 +233,6 @@ class AutoPlayingGame(BaseLoloApp):
 
     def play(self):
         row_size, col_size = self._game.grid.size()
-        print(row_size, col_size)
         try:
             position = (randint(0, row_size), randint(0, col_size))
             if position in self._game.grid:
@@ -242,7 +241,6 @@ class AutoPlayingGame(BaseLoloApp):
                 else:
                     while not self._game.is_resolving():
                         self.play()
-
             self._master.after(2000, self.play)
         except RecursionError:
             self.reset()
@@ -381,7 +379,7 @@ class LoadingScreen:
 
         self._master = master
 
-        self._master.geometry("1000x700")
+        self._master.geometry("1000x800")
         self._master.title("Lolo")
 
         self.LoloLogo = LoloLogo(self._master)
