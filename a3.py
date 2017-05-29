@@ -228,12 +228,12 @@ class AutoPlayingGame(BaseLoloApp):
         self._game = GameMode.get_game()
         self._game_mode_selection = GameMode.GAME_MODE
         self.play()
-        self._master.after(2000, self.play)
         self.check_changes()
         self._grid_view.off('select', self.activate)
 
     def play(self):
         row_size, col_size = self._game.grid.size()
+        print(row_size, col_size)
         try:
             position = (randint(0, row_size), randint(0, col_size))
             if position in self._game.grid:
@@ -252,7 +252,7 @@ class AutoPlayingGame(BaseLoloApp):
         if new_mode != self._game_mode_selection:
             self._game = GameMode.get_game()
             self._game_mode_selection = GameMode.GAME_MODE
-            self.reset()
+            self.repack()
         self._master.after(2000, self.check_changes)
 
     def game_over(self):
@@ -260,6 +260,12 @@ class AutoPlayingGame(BaseLoloApp):
 
     def reset(self):
         self._game.reset()
+        self._grid_view.draw(self._game.grid)
+
+    def repack(self):
+        self._grid_view.pack_forget()
+        self._grid_view = view.GridView(self._master, self._game.grid.size())
+        self._grid_view.pack()
         self._grid_view.draw(self._game.grid)
 
     def score(self, points):
