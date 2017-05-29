@@ -8,9 +8,7 @@ from random import randint
 from base import BaseLoloApp
 from tkinter import messagebox
 from highscores import HighScoreManager
-from tile_generators import LoadedGenerator
 import view
-import model
 
 import game_regular
 # # For alternative game modes
@@ -37,28 +35,29 @@ class LoloApp(BaseLoloApp):
 
         self.set_game(self._game.GAME_NAME)
 
-        self.LoloLogo = LoloLogo(master)
+        self.LoloLogo = LoloLogo(self._master)
         self.LoloLogo.pack(side=tk.TOP)
 
-        self._StatusBar = StatusBar(master)
+        self._StatusBar = StatusBar(self._master)
         self._StatusBar.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        menubar = tk.Menu(master)
+        menubar = tk.Menu(self._master)
         self._master.config(menu=menubar)
 
         dropdown = tk.Menu(menubar)
         menubar.add_cascade(label="File", menu=dropdown)
         dropdown.add_command(label="New Game", command=self.reset)
+        dropdown.add_command(label="Save Score",
+                             command=self.record_score)
         dropdown.add_command(label="Menu", command=self.return_to_menu)
-        dropdown.add_command(label="Exit", command=master.destroy)
-        #dropdown.add_command(label="record score test", command=self.record_score)
+        dropdown.add_command(label="Exit", command=self._master.destroy)
 
         self._master.title('Lolo :: %s Mode' % self._game.GAME_NAME)
 
-        super().__init__(self._master, game)
+        super().__init__(self._master, self._game)
 
         self._lightning_available = 1
-        self._lightning_button = tk.Button(master,
+        self._lightning_button = tk.Button(self._master,
                                            text="Lightning %i" %
                                            self._lightning_available,
                                            command=self.toggle_lightning)
@@ -171,17 +170,16 @@ class LoloApp(BaseLoloApp):
         if self._lightning_available == 0:
             messagebox.showwarning("Game over",
                                    "Game over, better luck next time!")
-            #self.record_score()
+            self.record_score()
         else:
             messagebox.showwarning("Game over",
                                    "Game over," +
                                    "but you still have lightnings left.")
 
     def record_score(self):
-        #todo
-        HighScoreManager.record(self._game.get_score(),
-                                self._game.grid,
-                                self._player_name)
+        HighScoreManager().record(self._game.get_score(),
+                                  self._game.grid,
+                                  self._player_name)
 
 
 class StatusBar(tk.Frame):
@@ -201,8 +199,8 @@ class StatusBar(tk.Frame):
 
 class LoloLogo(tk.Canvas):
 
-    def __init__(self, canvas):
-        super().__init__(canvas)
+    def __init__(self, master):
+        super().__init__(master)
 
         self.config(width=400, height=100)
 
@@ -225,12 +223,13 @@ class LoloLogo(tk.Canvas):
 
 class AutoPlayingGame(BaseLoloApp):
 
-    def __init__(self, master, game):
-        self._game = game
+    def __init__(self, master):
         super().__init__(master)
-        self._master = master
+        self._game = GameMode.get_game()
+        self._game_mode_selection = GameMode.GAME_MODE
         self.play()
         self._master.after(2000, self.play)
+        self.check_changes()
         self._grid_view.off('select', self.activate)
 
     def play(self):
@@ -247,6 +246,14 @@ class AutoPlayingGame(BaseLoloApp):
             self._master.after(2000, self.play)
         except RecursionError:
             self.reset()
+
+    def check_changes(self):
+        new_mode = GameMode.GAME_MODE
+        if new_mode != self._game_mode_selection:
+            self._game = GameMode.get_game()
+            self._game_mode_selection = GameMode.GAME_MODE
+            self.reset()
+        self._master.after(2000, self.check_changes)
 
     def game_over(self):
         self.reset()
@@ -332,13 +339,18 @@ class GameMode:
             mode_button = tk.Radiobutton(self._master,
                                          text=game_mode.title()+" mode",
                                          variable=self._game,
-                                         value=game_mode,
-                                         command=self.set_game)
+                                         value=game_mode)
             mode_button.pack()
-            if game_mode == "regular":
+            if game_mode == GameMode.GAME_MODE:
                 mode_button.invoke()
 
+        self._button = tk.Button(self._master,
+                                 text="Confirm",
+                                 command=self.set_game)
+        self._button.pack()
+
     def set_game(self):
+        self._master.destroy()
         self.set_class_var(self._game.get())
 
     @classmethod
@@ -402,9 +414,7 @@ class LoadingScreen:
                                command=self._master.destroy)
         self._exit.pack(side=tk.TOP, ipadx=66, pady=30)
 
-        game = GameMode.get_game()
-
-        loading_lolo = AutoPlayingGame(self._right_frame, game)
+        loading_lolo = AutoPlayingGame(self._right_frame)
 
     def new_game(self):
         player_name = self._player_name.get()
@@ -427,6 +437,7 @@ class LoadingScreen:
     def game_mode():
         window = tk.Toplevel()
         game_mode = GameMode(window)
+
 
 def main():
     root = tk.Tk()
