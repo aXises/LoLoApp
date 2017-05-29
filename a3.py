@@ -157,7 +157,7 @@ class LoloApp(BaseLoloApp):
         self._game.reset()
         self._grid_view.draw(self._game.grid)
         self._lightning_available = 1
-        self._game.set_score(0)
+        self._game.set_score(self._game.get_default_score())
         self.update_lightning()
         self.bind_keys()
 
@@ -270,12 +270,12 @@ class Replay:
 class HighScore(HighScoreManager):
 
     def __init__(self, master):
-        super().__init__()
+        super().__init__(gamemode=GameMode.GAME_MODE)
+
         self._master = master
         self._master.title("High Scores :: Lolo")
 
         self._best_player = self.get_sorted_data()
-
         self._best_player_label = tk.Label(self._master,
                                            text="Best Player: " +
                                            self._best_player[0]['name'] +
@@ -284,8 +284,7 @@ class HighScore(HighScoreManager):
                                            " points!")
         self._best_player_label.pack()
 
-        generator = LoadedGenerator(self._best_player[0]['grid'])
-        game = model.AbstractGame((6, 6), generator, 3)
+        game = game_regular.RegularGame.deserialize(self._best_player[0]['grid'])
         replay = Replay(self._master, game)
 
         self._lb_label = tk.Label(self._master, text="Leaderboard")
