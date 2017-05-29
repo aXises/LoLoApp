@@ -82,13 +82,13 @@ class LoloApp(BaseLoloApp):
 
     def toggle_lightning(self):
         if not self._lightning:
-            self.lightining_on()
+            self.lightning_on()
         else:
             self.lightning_off()
 
         self._lightning = not self._lightning
 
-    def lightining_on(self):
+    def lightning_on(self):
         self._grid_view.off('select', self.activate)
         self._grid_view.on('select', self.remove)
         self.update_active_lightning()
@@ -121,7 +121,7 @@ class LoloApp(BaseLoloApp):
         super().remove(*positions)
         if self._lightning:
             self._lightning_available -= 1
-            self.update_active_lightning()
+            self.update_lightning()
             if self._lightning_available == 0:
                 self.lightning_disabled()
                 self.toggle_lightning()
@@ -159,6 +159,7 @@ class LoloApp(BaseLoloApp):
         self._lightning_available = 1
         self._game.set_score(0)
         self.update_lightning()
+        self.bind_keys()
 
         if self._lightning_is_disabled:
             self.lightning_enabled()
@@ -169,7 +170,7 @@ class LoloApp(BaseLoloApp):
     def game_over(self):
         if self._lightning_available == 0:
             messagebox.showwarning("Game over",
-                                   "Better luck next time!")
+                                   "Game over, better luck next time!")
             #self.record_score()
         else:
             messagebox.showwarning("Game over",
