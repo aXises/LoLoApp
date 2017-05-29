@@ -49,13 +49,13 @@ class LoloApp(BaseLoloApp):
         dropdown = tk.Menu(menubar)
         menubar.add_cascade(label="File", menu=dropdown)
         dropdown.add_command(label="New Game", command=self.reset)
+        dropdown.add_command(label="Menu", command=self.return_to_menu)
         dropdown.add_command(label="Exit", command=master.destroy)
         #dropdown.add_command(label="record score test", command=self.record_score)
 
         self._master.title('Lolo :: %s Mode' % self._game.GAME_NAME)
 
-        super().__init__(master, game)
-        self._master = master
+        super().__init__(self._master, game)
 
         self._lightning_available = 1
         self._lightning_button = tk.Button(master,
@@ -67,6 +67,10 @@ class LoloApp(BaseLoloApp):
         self._lightning_is_disabled = False
 
         self.bind_keys()
+
+    def return_to_menu(self):
+        self._master.destroy()
+        main()
 
     @classmethod
     def get_game(cls):
@@ -220,7 +224,8 @@ class LoloLogo(tk.Canvas):
 
 class AutoPlayingGame(BaseLoloApp):
 
-    def __init__(self, master):
+    def __init__(self, master, game):
+        self._game = game
         super().__init__(master)
         self._master = master
         self.play()
@@ -418,7 +423,9 @@ class LoadingScreen:
                                command=self._master.destroy)
         self._exit.pack(side=tk.TOP, ipadx=66, pady=30)
 
-        loading_lolo = AutoPlayingGame(self._right_frame)
+        game = GameMode.get_game()
+
+        loading_lolo = AutoPlayingGame(self._right_frame, game)
 
     def new_game(self):
         player_name = self._player_name.get()
@@ -427,24 +434,25 @@ class LoadingScreen:
             messagebox.showwarning("Please enter a name.",
                                    "Please enter a name.")
         else:
+            self._master.withdraw()
             game = GameMode.get_game()
             window = tk.Toplevel()
             LoloGame = LoloApp(window, game, player_name)
 
-    def highscore(self):
+    @staticmethod
+    def highscore():
         window = tk.Toplevel()
         highscores = HighScore(window)
 
-    def game_mode(self):
+    @staticmethod
+    def game_mode():
         window = tk.Toplevel()
         game_mode = GameMode(window)
 
 def main():
-
     root = tk.Tk()
     window = LoadingScreen(root)
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
