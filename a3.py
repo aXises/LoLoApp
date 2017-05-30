@@ -9,12 +9,16 @@ from tkinter import messagebox
 
 import game_regular
 import view
+import model
+import tile_generators
 from base import BaseLoloApp
 from game_lucky7 import Lucky7Game
 # # For alternative game modes
 from game_make13 import Make13Game
 from game_unlimited import UnlimitedGame
+from game_objective import ObjectiveGame
 from highscores import HighScoreManager
+from modules.weighted_selector import WeightedSelector
 
 __author__ = "<Your name here>"
 __email__ = "<Your student email here>"
@@ -156,7 +160,6 @@ class LoloApp(BaseLoloApp):
         self._game.reset()
         self._grid_view.draw(self._game.grid)
         self._lightning_available = 1
-        self._game.set_score(self._game.get_default_score())
         self.update_lightning()
         self.bind_keys()
 
@@ -337,7 +340,8 @@ class GameMode:
         game_modes = ["regular",
                       "make13",
                       "lucky7",
-                      "unlimited"]
+                      "unlimited",
+                      "objective"]
 
         for game_mode in game_modes:
             mode_button = tk.Radiobutton(self._master,
@@ -371,6 +375,8 @@ class GameMode:
             return Lucky7Game()
         elif cls.GAME_MODE == "unlimited":
             return UnlimitedGame()
+        elif cls.GAME_MODE == "objective":
+            return ObjectiveGame()
 
 
 class LoadingScreen:
