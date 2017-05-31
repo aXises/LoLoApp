@@ -1,10 +1,7 @@
-"""Modelling classes for Lucky 7 Lolo game mode."""
+"""Modelling classes for Objective game mode."""
 
 import game_regular
-import game_make13
-import model
-import tile_generators
-from modules.weighted_selector import WeightedSelector
+import a3
 from random import randint
 
 __author__ = "<Your name here>"
@@ -28,44 +25,29 @@ class ObjectiveTile(game_regular.RegularTile):
         self._objective_type = randint(1, 3)
         self._objective_value = "obj"
 
-        objectives = ObjectiveGame.OBJECTIVES
-        objective_chance = randint(1,10)
-        print(ObjectiveGame.GENERATE_OBJECTIVES)
-        while objectives < 5 and ObjectiveGame.GENERATE_OBJECTIVES:
-            if objectives != 1 and objective_chance == 5:
-                self.convert_objective()
-                objectives += 1
-            else:
-                break
-
-        print(ObjectiveGame.OBJECTIVES)
-
-
-
     def join(self, others):
-        if self.get_value() == "obj":
+        if type(self.get_value()) == str:
             #print("clicked obj tile which is joinable")
-            self.set_value(others[0].get_value())
+            #self.set_value(others[0].get_value())
+            pass
         else:
             for other in others:
-                if other.get_value() == "obj":
+                if type(self.get_value()) == str:
                     #print('joined objective tile')
                     pass
-
-    def convert_objective(self):
-        self._type = self._objective_type
-        self._value = self._objective_value
-        ObjectiveGame.OBJECTIVES += 1
+        super().join(others)
 
     def set_value(self, value):
         self._value = value
+
+    def set_objective(self):
+        value = randint(1, 50)
+        self._value = str(value)+"*"
 
 
 class ObjectiveGame(game_regular.RegularGame):
 
     GAME_NAME = "Objective"
-    OBJECTIVES = 0
-    GENERATE_OBJECTIVES = True
 
     def __init__(self, size=(6,6), types=3, min_group=3, objective_value="obj",
                  objective_type=13, normal_weight=20, max_weight=2):
@@ -73,13 +55,13 @@ class ObjectiveGame(game_regular.RegularGame):
         # Basic properties
         self._objective_type = objective_type
         self._objective_value = objective_value
+        self._updated_current_obj = False
+        self._objective_to_remove = []
         super().__init__(size, types, min_group)
-        if not self._resolving:
+        while not self.is_resolving():
+            self.convert_objective()
             self.find_obj_tiles()
-
-    def get_default_score(self):
-        """(int) Returns the default score."""
-        return 0
+            break
 
     def _construct_tile(self, type, position, *args, **kwargs):
         """(LuckyTile) Returns a new tile from the generator's selection.
@@ -92,24 +74,76 @@ class ObjectiveGame(game_regular.RegularGame):
         """
         return ObjectiveTile(type, *args, **kwargs)
 
+    def convert_objective(self):
+        row, col = self.grid.size()
+        objectives = []
+        while len(objectives) < 3:
+            position = (randint(0, row - 1), randint(0, col - 1))
+            objectives.append(position)
+            self.grid[position].set_objective()
+        a3.ObjectivesBar.update_objectives(self.find_obj_tiles())
+
     def find_obj_tiles(self):
-        obj_tiles = 0
-        for group in self.find_groups():
+        objectives = []
+        id = 0
+        for group in self.grid.find_all_connected():
             for position in group:
                 cell = self.grid[position]
-                for neighbour in filter(None,
-                                        self.grid.get_adjacent_cells(position)):
-                    if neighbour in group:
-                        print(position, cell.get_value())
-                        if cell.get_value() == "obj":
-                            obj_tiles += 1
-        print(obj_tiles)
-        ObjectiveGame.OBJECTIVES = obj_tiles
+                if type(cell.get_value()) == str:
+                    #print("found obj at", position)
+                    objectives.append((cell, id))
+                    id += 1
+        return objectives
+
+    def find_groups(self):
+        for group in self.grid.find_all_connected():
+            for position in group:
+                cell = self.grid[position]
+                print(cell.get_value())
+                if type(cell.get_value()) == str:
+                    cell_val = cell.get_value().split("*")
+            if len(group) < self.min_group:
+                continue
+
+
+            yield group
+
+    def get_removed(self):
+        current_objectives = a3.ObjectivesBar.get_objectives()
+        in_grid_objectives = self.find_obj_tiles()
+        in_grid_id = []
+        # print("found", self.find_obj_tiles())
+        # print("current are", current_objectives)
+        for in_grid_objective, id in in_grid_objectives:
+            in_grid_id.append(id)
+
+        print("current", current_objectives)
+        print("in grid", in_grid_objectives)
+
+        for current_objective, id in current_objectives:
+            if id not in in_grid_id:
+                print("not in", current_objective)
+                if id not in self._objective_to_remove:
+                    self._objective_to_remove.append(id)
+        #print(self._objective_to_remove)
+        return self._objective_to_remove
+
 
     def activate(self, position):
-        test = True
-        while not self._resolving and test == True:
-            self.find_obj_tiles()
-            test = False
-        #print(self.find_obj_tiles())
-        return game_regular.RegularGame.activate(self, position)
+        remove_label = self.get_removed()
+        #if len(remove_label) != 0:
+            #a3.ObjectivesBar.destory_objective_label()
+
+        if self.grid[position].get_value() == "obj":
+            connected_cells = self._attempt_activate_collect(position)
+            connected_cells.remove(position)
+            for cell in connected_cells:
+                del self.grid[cell]
+            return game_regular.RegularGame.remove(self, position)
+        else:
+            return game_regular.RegularGame.activate(self, position)
+
+    def reset(self):
+
+        super().reset()
+        self.convert_objective()
