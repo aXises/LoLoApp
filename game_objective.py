@@ -1,6 +1,7 @@
 """Modelling classes for Objective game mode."""
 
 import game_regular
+import json
 
 __author__ = "<Your name here>"
 __email__ = "<Your student email here>"
@@ -27,14 +28,25 @@ class ObjectiveGame(game_regular.RegularGame):
     MOVES_REMAINING = 20
 
     def __init__(self, size=(6,6), types=3, min_group=2):
-
+        data = self.load()
+        self.set_moves_remaining(data["limit"])
         self._moves_remaining = ObjectiveGame.MOVES_REMAINING
-        self._objectives = [(1, 2), (2, 2), (3, 2)]
+        self._objectives = []
+
+        for list in data["objectives"]:
+            objective = tuple(list)
+            self._objectives.append(objective)
+
         self.set_objectives(self._objectives)
-        super().__init__(size, types, min_group)
+
+        super().__init__(data["size"], data["types"], data["min_group"])
 
     def load(self):
-        pass
+        """Loads the highscore json file."""
+        with open("objective_mode.json") as json_data:
+            data = json.load(json_data)
+            json_data.close()
+        return data
 
     def _construct_tile(self, type, position, *args, **kwargs):
         """(LuckyTile) Returns a new tile from the generator's selection.

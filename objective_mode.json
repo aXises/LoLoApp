@@ -1,0 +1,9 @@
+{
+    "mode": "objective",
+    "min_group": 3,
+    "types": 3,
+    "size": [6, 6],
+    "starting_grid": "None",
+    "objectives": [[1, 2], [2, 2], [3, 2]],
+    "limit": 25
+}
