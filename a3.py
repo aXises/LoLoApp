@@ -123,12 +123,18 @@ class LoloApp(BaseLoloApp):
         if self._lightning:
             self._lightning_available -= 1
             self.update_lightning()
-            if self._lightning_available == 0:
-                self.lightning_disabled()
+            self.toggle_lightning()
+        if self._lightning_available == 0:
+            self.lightning_disabled()
+            if self._lightning:
                 self.toggle_lightning()
+            self.update_lightning()
 
     def activate(self, position):
-        if not self._game.can_activate(position):
+        #self._StatusBar.update_objectives(self._game.get_objectives())
+        self._StatusBar.compare_objective(self._game.get_objectives())
+
+        if not self._game.can_activate(position) and not self._lightning:
             messagebox.showwarning("Invalid Activation",
                                    "You cannot activate this tile")
         else:
@@ -204,16 +210,36 @@ class StatusBar(tk.Frame):
         self._objectives = tk.Label(self)
         self._objectives.pack(anchor="center")
 
+        self._construct_list = []
+        self._objectives = []
+
     def update_score(self, points):
         self._score.config(text="Score: %i" % points)
 
     def update_objectives(self, objectives):
-        print(objectives)
-        for type, point in objectives:
-            self._objectives = tk.Label(self,
-                                        text=type+" - "+str(point))
-            self._objectives.pack(anchor="center")
+        colours = {
+            1: "Red",
+            2: "Blue",
+            3: "Yellow",
+        }
+        retrieved_objectives = False
+        if not retrieved_objectives:
+            self._objectives = objectives
+            retrieved_objectives = True
 
+        print(retrieved_objectives)
+        for type, value in self._objectives:
+            if (colours[type], value) not in self._construct_list:
+                self._construct_list.append((colours[type], value))
+
+        while len(self._construct_list) > 0:
+            self._construct_list[0] = tk.Label(text=self._construct_list[0])
+            self._construct_list[0].pack()
+            del self._construct_list[0]
+
+    def compare_objective(self, retrieved):
+        print(self._objectives)
+        print(retrieved)
 
     def objective_mode(self, moves):
         self._score.config(text="Moves Remaining: %i" % moves)
