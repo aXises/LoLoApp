@@ -24,17 +24,17 @@ class ObjectiveGame(game_regular.RegularGame):
 
     GAME_NAME = "Objective"
     OBJECTIVES = []
+    MOVES_REMAINING = 20
 
-    def __init__(self, size=(6,6), types=3, min_group=2, objective_value="obj",
-                 objective_type=13, normal_weight=20, max_weight=2):
+    def __init__(self, size=(6,6), types=3, min_group=2):
 
-        # Basic properties
-        self._objective_type = objective_type
-        self._objective_value = objective_value
-        self._moves_remaining = 50
-        self._objectives = [(1, 10), (2, 20), (3, 15)]
+        self._moves_remaining = ObjectiveGame.MOVES_REMAINING
+        self._objectives = [(1, 2), (2, 2), (3, 2)]
         self.set_objectives(self._objectives)
         super().__init__(size, types, min_group)
+
+    def load(self):
+        pass
 
     def _construct_tile(self, type, position, *args, **kwargs):
         """(LuckyTile) Returns a new tile from the generator's selection.
@@ -66,7 +66,6 @@ class ObjectiveGame(game_regular.RegularGame):
 
     def activate(self, position):
         self._moves_remaining -= 1
-        #print(self.check_objectives())
         self.set_objectives(self.check_objectives())
         return game_regular.RegularGame.activate(self, position)
 
