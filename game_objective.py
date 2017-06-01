@@ -20,22 +20,20 @@ class ObjectiveTile(game_regular.RegularTile):
         self._value = value
         self._type = type
 
-    def join(self, others):
-        super().join(others)
-
-
 class ObjectiveGame(game_regular.RegularGame):
 
     GAME_NAME = "Objective"
+    OBJECTIVES = []
 
-    def __init__(self, size=(6,6), types=3, min_group=3, objective_value="obj",
+    def __init__(self, size=(6,6), types=3, min_group=2, objective_value="obj",
                  objective_type=13, normal_weight=20, max_weight=2):
 
         # Basic properties
         self._objective_type = objective_type
         self._objective_value = objective_value
-        self._moves_remaining = 3
-        self._objectives = [("Red", 30), ("Blue", 25)]
+        self._moves_remaining = 50
+        self._objectives = [(1, 10), (2, 20), (3, 15)]
+        self.set_objectives(self._objectives)
         super().__init__(size, types, min_group)
 
     def _construct_tile(self, type, position, *args, **kwargs):
@@ -49,12 +47,36 @@ class ObjectiveGame(game_regular.RegularGame):
         """
         return ObjectiveTile(type, *args, **kwargs)
 
+    def check_objectives(self):
+        objective = []
+        for group in self.grid.find_all_connected():
+            for position in group:
+                cell = self.grid[position]
+                for type, value in self.get_objectives():
+                    #print("obj|", type, "in-grid|", cell.get_type(), "obj|", value, "in-grid|", cell.get_value())
+                    if type == cell.get_type() and value <= cell.get_value():
+                        #print("------------> type eq", type, cell.get_type())
+                        #print("------------> val eq", value, cell.get_value())
+                        #print("objective completed for", type, value)
+                        objective.append((type, value))
+                        if len(objective) > 0:
+                            #print("remain", set(self.get_objectives()) - set(objective))
+                            return set(self.get_objectives()) - set(objective)
+        return self.get_objectives()
+
     def activate(self, position):
         self._moves_remaining -= 1
+        #print(self.check_objectives())
+        self.set_objectives(self.check_objectives())
         return game_regular.RegularGame.activate(self, position)
 
-    def get_objectives(self):
-        return self._objectives
+    @classmethod
+    def set_objectives(cls, objectives):
+        cls.OBJECTIVES = objectives
+
+    @classmethod
+    def get_objectives(cls):
+        return cls.OBJECTIVES
 
     def get_moves_remaining(self):
         return self._moves_remaining
