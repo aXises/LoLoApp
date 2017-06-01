@@ -74,13 +74,14 @@ class LoloApp(BaseLoloApp):
         self.LoloLogo = LoloLogo(self._master)
         self.LoloLogo.pack(side=tk.TOP)
 
-        if self.get_game() == "Objective":
-            objectives = ObjectivesBar(self._master, self._game)
-            objectives.pack()
-            #objectives.destory_objective_label()
-
         self._StatusBar = StatusBar(self._master)
         self._StatusBar.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+        #if self.get_game() == "Objective":
+            #objectives = ObjectivesBar(self._master, self._game)
+            #objectives.pack()
+            #self._StatusBar.objective_mode(self._game.get_moves_remaining())
+            #objectives.destory_objective_label()
 
         menubar = tk.Menu(self._master)
         self._master.config(menu=menubar)
@@ -97,14 +98,16 @@ class LoloApp(BaseLoloApp):
 
         super().__init__(self._master, self._game)
 
-        self._lightning_available = 1
-        self._lightning_button = tk.Button(self._master,
-                                           text="Lightning %i" %
-                                           self._lightning_available,
-                                           command=self.toggle_lightning)
-        self._lightning_button.pack(side=tk.BOTTOM, pady=5)
-        self._lightning = False
-        self._lightning_is_disabled = False
+        self._lightning_available = 0
+        if self.get_game() != "Objective":
+            self._lightning_available = 1
+            self._lightning_button = tk.Button(self._master,
+                                               text="Lightning %i" %
+                                               self._lightning_available,
+                                               command=self.toggle_lightning)
+            self._lightning_button.pack(side=tk.BOTTOM, pady=5)
+            self._lightning = False
+            self._lightning_is_disabled = False
 
         self.bind_keys()
 
@@ -170,7 +173,7 @@ class LoloApp(BaseLoloApp):
         if not self._game.can_activate(position):
             messagebox.showwarning("Invalid Activation",
                                    "You cannot activate this tile")
-        else:
+        elif self.get_game() != "Objective":
             lightning_chance = randint(1, 20)
             if lightning_chance == 10:
                 self._lightning_available += 1
@@ -181,11 +184,15 @@ class LoloApp(BaseLoloApp):
         super().activate(position)
 
     def score(self, points):
-        self._StatusBar.update_score(points)
+        if self.get_game() == "Objective":
+            self._StatusBar.objective_mode(self._game.get_moves_remaining())
+        else:
+            self._StatusBar.update_score(points)
 
     def bind_keys(self):
         self._master.bind('<Control-n>', self.reset_key)
-        self._master.bind('<Control-l>', self.lightning_key)
+        if self.get_game() != "Objective":
+            self._master.bind('<Control-l>', self.lightning_key)
 
     def lightning_key(self, event):
         self.toggle_lightning()
@@ -196,21 +203,28 @@ class LoloApp(BaseLoloApp):
     def reset(self):
         self._game.reset()
         self._grid_view.draw(self._game.grid)
-        self._lightning_available = 1
-        self.update_lightning()
-        self.bind_keys()
+        if self.get_game() == "Objective":
+            self._game.set_moves_remaining(3)
+            self._StatusBar.objective_mode(self._game.get_moves_remaining())
+        else:
+            self._lightning_available = 1
+            self.update_lightning()
 
-        if self._lightning_is_disabled:
-            self.lightning_enabled()
+            if self._lightning_is_disabled:
+                self.lightning_enabled()
 
-        if self._lightning:
-            self.toggle_lightning()
+            if self._lightning:
+                self.toggle_lightning()
+
+            self.bind_keys()
 
     def game_over(self):
-        if self._lightning_available == 0:
+        if self._lightning_available == 0 or \
+           self._game.get_moves_remaining() == 0:
             messagebox.showwarning("Game over",
                                    "Game over, better luck next time!")
             self.record_score()
+            self.reset()
         else:
             messagebox.showwarning("Game over",
                                    "Game over," +
@@ -233,8 +247,13 @@ class StatusBar(tk.Frame):
         self._score = tk.Label(self, text="Score: 0")
         self._score.pack(side=tk.RIGHT)
 
+        self._objectives = tk.Label(self, text="Objectives: Red - 25, Yellow - 30")
+        self._objectives.pack(anchor="center")
     def update_score(self, points):
         self._score.config(text="Score: %i" % points)
+
+    def objective_mode(self, moves):
+        self._score.config(text="Moves Remaining: %i" % moves)
 
 
 class LoloLogo(tk.Canvas):

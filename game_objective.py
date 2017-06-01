@@ -26,16 +26,11 @@ class ObjectiveTile(game_regular.RegularTile):
         self._objective_value = "obj"
 
     def join(self, others):
-        if type(self.get_value()) == str:
-            #print("clicked obj tile which is joinable")
-            #self.set_value(others[0].get_value())
-            pass
-        else:
-            for other in others:
-                if type(self.get_value()) == str:
-                    #print('joined objective tile')
-                    pass
-        super().join(others)
+        for other in others:
+            if isinstance(other.get_value(), int):
+                self._value += other.get_value()
+        if self._value > 10:
+            print("greater then 10")
 
     def set_value(self, value):
         self._value = value
@@ -49,7 +44,7 @@ class ObjectiveGame(game_regular.RegularGame):
 
     GAME_NAME = "Objective"
 
-    def __init__(self, size=(6,6), types=3, min_group=3, objective_value="obj",
+    def __init__(self, size=(6,6), types=3, min_group=2, objective_value="obj",
                  objective_type=13, normal_weight=20, max_weight=2):
 
         # Basic properties
@@ -57,6 +52,7 @@ class ObjectiveGame(game_regular.RegularGame):
         self._objective_value = objective_value
         self._updated_current_obj = False
         self._objective_to_remove = []
+        self._moves_remaining = 50
         super().__init__(size, types, min_group)
         while not self.is_resolving():
             self.convert_objective()
@@ -96,17 +92,31 @@ class ObjectiveGame(game_regular.RegularGame):
         return objectives
 
     def find_groups(self):
+        objective = []
         for group in self.grid.find_all_connected():
             for position in group:
                 cell = self.grid[position]
                 print(cell.get_value())
                 if type(cell.get_value()) == str:
-                    cell_val = cell.get_value().split("*")
+                    objective.append(position)
             if len(group) < self.min_group:
                 continue
+            intersect = group - set(objective)
+            #print("test")
+            yield intersect
 
-
-            yield group
+    def find_connections(self):
+        connections = []
+        for group in self.find_groups():
+            for position in group:
+                cell = self.grid[position]
+                for neighbour in filter(None,
+                                        self.grid.get_adjacent_cells(position)):
+                    if neighbour in group:
+                        connections.append(
+                            (position, cell.get_type(), neighbour))
+        print(connections)
+        return connections
 
     def get_removed(self):
         current_objectives = a3.ObjectivesBar.get_objectives()
@@ -117,12 +127,12 @@ class ObjectiveGame(game_regular.RegularGame):
         for in_grid_objective, id in in_grid_objectives:
             in_grid_id.append(id)
 
-        print("current", current_objectives)
-        print("in grid", in_grid_objectives)
+        #print("current", current_objectives)
+        #print("in grid", in_grid_objectives)
 
         for current_objective, id in current_objectives:
             if id not in in_grid_id:
-                print("not in", current_objective)
+                #print("not in", current_objective)
                 if id not in self._objective_to_remove:
                     self._objective_to_remove.append(id)
         #print(self._objective_to_remove)
@@ -130,6 +140,7 @@ class ObjectiveGame(game_regular.RegularGame):
 
 
     def activate(self, position):
+        self._moves_remaining -= 1
         remove_label = self.get_removed()
         #if len(remove_label) != 0:
             #a3.ObjectivesBar.destory_objective_label()
@@ -147,3 +158,14 @@ class ObjectiveGame(game_regular.RegularGame):
 
         super().reset()
         self.convert_objective()
+
+    def get_moves_remaining(self):
+        return self._moves_remaining
+
+    def set_moves_remaining(self, moves):
+        self._moves_remaining = moves
+
+    def game_over(self):
+        if self.get_moves_remaining() == 0:
+            return True
+
