@@ -1,7 +1,10 @@
-"""Modelling classes for Objective game mode."""
+"""Modelling classes for Lucky 7 Lolo game mode."""
 
 import game_regular
-import a3
+import game_make13
+import model
+import tile_generators
+from modules.weighted_selector import WeightedSelector
 from random import randint
 
 __author__ = "<Your name here>"
@@ -25,24 +28,52 @@ class ObjectiveTile(game_regular.RegularTile):
         self._objective_type = randint(1, 3)
         self._objective_value = "obj"
 
+        objectives = ObjectiveGame.OBJECTIVES
+        objective_chance = randint(1,10)
+        print(ObjectiveGame.GENERATE_OBJECTIVES)
+        while objectives < 5 and ObjectiveGame.GENERATE_OBJECTIVES:
+            if objectives != 1 and objective_chance == 5:
+                self.convert_objective()
+                objectives += 1
+            else:
+                break
+
+        print(ObjectiveGame.OBJECTIVES)
+
+
+
     def join(self, others):
+<<<<<<< HEAD
         for other in others:
             if isinstance(other.get_value(), int):
                 self._value += other.get_value()
         if self._value > 10:
             print("greater then 10")
+=======
+        if self.get_value() == "obj":
+            #print("clicked obj tile which is joinable")
+            self.set_value(others[0].get_value())
+        else:
+            for other in others:
+                if other.get_value() == "obj":
+                    #print('joined objective tile')
+                    pass
+
+    def convert_objective(self):
+        self._type = self._objective_type
+        self._value = self._objective_value
+        ObjectiveGame.OBJECTIVES += 1
+>>>>>>> parent of 7f0fd7e... Objective game mode (test)
 
     def set_value(self, value):
         self._value = value
-
-    def set_objective(self):
-        value = randint(1, 50)
-        self._value = str(value)+"*"
 
 
 class ObjectiveGame(game_regular.RegularGame):
 
     GAME_NAME = "Objective"
+    OBJECTIVES = 0
+    GENERATE_OBJECTIVES = True
 
     def __init__(self, size=(6,6), types=3, min_group=2, objective_value="obj",
                  objective_type=13, normal_weight=20, max_weight=2):
@@ -50,14 +81,19 @@ class ObjectiveGame(game_regular.RegularGame):
         # Basic properties
         self._objective_type = objective_type
         self._objective_value = objective_value
+<<<<<<< HEAD
         self._updated_current_obj = False
         self._objective_to_remove = []
         self._moves_remaining = 50
+=======
+>>>>>>> parent of 7f0fd7e... Objective game mode (test)
         super().__init__(size, types, min_group)
-        while not self.is_resolving():
-            self.convert_objective()
+        if not self._resolving:
             self.find_obj_tiles()
-            break
+
+    def get_default_score(self):
+        """(int) Returns the default score."""
+        return 0
 
     def _construct_tile(self, type, position, *args, **kwargs):
         """(LuckyTile) Returns a new tile from the generator's selection.
@@ -70,16 +106,8 @@ class ObjectiveGame(game_regular.RegularGame):
         """
         return ObjectiveTile(type, *args, **kwargs)
 
-    def convert_objective(self):
-        row, col = self.grid.size()
-        objectives = []
-        while len(objectives) < 3:
-            position = (randint(0, row - 1), randint(0, col - 1))
-            objectives.append(position)
-            self.grid[position].set_objective()
-        a3.ObjectivesBar.update_objectives(self.find_obj_tiles())
-
     def find_obj_tiles(self):
+<<<<<<< HEAD
         objectives = []
         id = 0
         for group in self.grid.find_all_connected():
@@ -169,3 +197,25 @@ class ObjectiveGame(game_regular.RegularGame):
         if self.get_moves_remaining() == 0:
             return True
 
+=======
+        obj_tiles = 0
+        for group in self.find_groups():
+            for position in group:
+                cell = self.grid[position]
+                for neighbour in filter(None,
+                                        self.grid.get_adjacent_cells(position)):
+                    if neighbour in group:
+                        print(position, cell.get_value())
+                        if cell.get_value() == "obj":
+                            obj_tiles += 1
+        print(obj_tiles)
+        ObjectiveGame.OBJECTIVES = obj_tiles
+
+    def activate(self, position):
+        test = True
+        while not self._resolving and test == True:
+            self.find_obj_tiles()
+            test = False
+        #print(self.find_obj_tiles())
+        return game_regular.RegularGame.activate(self, position)
+>>>>>>> parent of 7f0fd7e... Objective game mode (test)

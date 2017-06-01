@@ -9,55 +9,23 @@ from tkinter import messagebox
 
 import game_regular
 import view
+import model
+import tile_generators
 from base import BaseLoloApp
-from highscores import HighScoreManager
 from game_lucky7 import Lucky7Game
+# # For alternative game modes
 from game_make13 import Make13Game
 from game_unlimited import UnlimitedGame
-import game_objective
+from game_objective import ObjectiveGame
+from highscores import HighScoreManager
+from modules.weighted_selector import WeightedSelector
 
 __author__ = "<Your name here>"
 __email__ = "<Your student email here>"
 
 __version__ = "1.0.2"
 
-
-class ObjectivesBar(tk.Frame):
-
-    OBJECTIVES = []
-
-    def __init__(self, master, game):
-        super().__init__(master)
-        self._game = game
-        self.generate_objective_label(self._game.find_obj_tiles())
-        labels_to_remove = self._game.get_removed()
-        while len(labels_to_remove) != 0:
-            print("to remove", labels_to_remove)
-            if len(labels_to_remove) > 0:
-                del labels_to_remove[0]
-                break
-
-    def generate_objective_label(self, objectives):
-        self._id_list = []
-        for objective, id in objectives:
-            self._id_list.append(id)
-            print(objective, id)
-
-        for id in self._id_list:
-            #print(id_list[id])
-            self._id_list[id] = tk.Label(text="Objective #%i" % (id+1))
-            self._id_list[id].pack()
-
-    def destory_objective_label(self, id):
-        self._id_list[id].destroy()
-
-    @classmethod
-    def get_objectives(cls):
-        return cls.OBJECTIVES
-
-    @classmethod
-    def update_objectives(cls, objectives):
-        cls.OBJECTIVES = objectives
+# Define your classes here
 
 
 class LoloApp(BaseLoloApp):
@@ -432,7 +400,7 @@ class GameMode:
         elif cls.GAME_MODE == "unlimited":
             return UnlimitedGame()
         elif cls.GAME_MODE == "objective":
-            return game_objective.ObjectiveGame()
+            return ObjectiveGame()
 
 
 class LoadingScreen:
