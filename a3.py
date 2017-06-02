@@ -132,8 +132,11 @@ class LoloApp(BaseLoloApp):
 
     def activate(self, position):
         if self.get_game() == "Objective":
+            self._game.set_objectives(self._game.check_objectives())
             self._StatusBar.compare_objective(self._game.get_objectives())
             self._StatusBar.check_game_win()
+            print(self._game.get_objectives())
+            print(self._game.get_static_objectives())
 
         if not self._game.can_activate(position) and not self._lightning:
             messagebox.showwarning("Invalid Activation",
@@ -168,7 +171,8 @@ class LoloApp(BaseLoloApp):
         if self.get_game() == "Objective":
             self._game.set_moves_remaining(game_objective.ObjectiveGame.MOVES_REMAINING)
             self._StatusBar.reset_objective()
-            self._StatusBar.update_objectives(self._game.get_objectives())
+            self._StatusBar.update_objectives(self._game.get_static_objectives())
+            self._game.set_objectives(self._game.get_static_objectives())
         self._game.reset()
         self._grid_view.draw(self._game.grid)
         self._lightning_available = 1
@@ -204,9 +208,10 @@ class StatusBar(tk.Frame):
 
     def __init__(self, master):
         super().__init__(master)
+        self._master = master
 
-        self._game = tk.Label(self, text=LoloApp.get_game())
-        self._game.pack(side=tk.LEFT)
+        self._game_label = tk.Label(self, text=LoloApp.get_game())
+        self._game_label.pack(side=tk.LEFT)
 
         self._score = tk.Label(self, text="Score: 0")
         self._score.pack(side=tk.RIGHT)
@@ -222,7 +227,6 @@ class StatusBar(tk.Frame):
             self._construct_list = []
             self._objectives = []
             self._active_obj = {}
-            self._objectives_remaining = 0
             self._won = False
 
     def update_score(self, points):
@@ -260,7 +264,6 @@ class StatusBar(tk.Frame):
             self._construct_list[0].pack()
             self._active_obj[x] = self._construct_list[0]
             x += 1
-            self._objectives_remaining += 1
             del self._construct_list[0]
 
     def compare_objective(self, retrieved):
@@ -272,7 +275,7 @@ class StatusBar(tk.Frame):
         if len(game_objective.ObjectiveGame.get_objectives()) < 1 and \
            not self._won:
             tk.messagebox.showwarning("Win!",
-                                      "You have successfully eliminated"+
+                                      "You have successfully eliminated" +
                                       " all objectives")
             self._won = True
 

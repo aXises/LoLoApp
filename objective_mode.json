@@ -4,6 +4,6 @@
     "types": 3,
     "size": [6, 6],
     "starting_grid": "None",
-    "objectives": [[1, 2], [2, 2], [3, 2]],
+    "objectives": [[1, 5], [2, 5], [3, 5]],
     "limit": 25
 }

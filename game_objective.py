@@ -41,6 +41,8 @@ class ObjectiveGame(game_regular.RegularGame):
 
         super().__init__(data["size"], data["types"], data["min_group"])
 
+        self.set_objectives(self.check_objectives())
+
     def load(self):
         """Loads the highscore json file."""
         with open("objective_mode.json") as json_data:
@@ -61,24 +63,27 @@ class ObjectiveGame(game_regular.RegularGame):
 
     def check_objectives(self):
         objective = []
-        for group in self.grid.find_all_connected():
-            for position in group:
-                cell = self.grid[position]
-                for type, value in self.get_objectives():
-                    #print("obj|", type, "in-grid|", cell.get_type(), "obj|", value, "in-grid|", cell.get_value())
-                    if type == cell.get_type() and value <= cell.get_value():
-                        #print("------------> type eq", type, cell.get_type())
-                        #print("------------> val eq", value, cell.get_value())
-                        #print("objective completed for", type, value)
-                        objective.append((type, value))
-                        if len(objective) > 0:
-                            #print("remain", set(self.get_objectives()) - set(objective))
-                            return set(self.get_objectives()) - set(objective)
+        while not self.is_resolving():
+            for group in self.grid.find_all_connected():
+                for position in group:
+                    cell = self.grid[position]
+                    for type, value in self.get_objectives():
+                        #print("obj|", type, "in-grid|", cell.get_type(), "obj|", value, "in-grid|", cell.get_value())
+                        if type == cell.get_type() and value <= cell.get_value():
+                            #print("------------> type eq", type, cell.get_type())
+                            #print("------------> val eq", value, cell.get_value())
+                            #print("objective completed for", type, value)
+                            objective.append((type, value))
+                            if len(objective) > 0:
+                                #print("remain", set(self.get_objectives()) - set(objective))
+                                return set(self.get_objectives()) - set(objective)
+            break
         return self.get_objectives()
 
     def activate(self, position):
+        print(self)
         self._moves_remaining -= 1
-        self.set_objectives(self.check_objectives())
+        #self.set_objectives(self.check_objectives())
         return game_regular.RegularGame.activate(self, position)
 
     @classmethod
@@ -88,6 +93,9 @@ class ObjectiveGame(game_regular.RegularGame):
     @classmethod
     def get_objectives(cls):
         return cls.OBJECTIVES
+
+    def get_static_objectives(self):
+        return self._objectives
 
     def get_moves_remaining(self):
         return self._moves_remaining
