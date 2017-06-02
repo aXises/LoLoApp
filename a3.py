@@ -134,7 +134,6 @@ class LoloApp(BaseLoloApp):
         if self.get_game() == "Objective":
             self._StatusBar.compare_objective(self._game.get_objectives())
             self._StatusBar.check_game_win()
-            #print(self._game.get_objectives())
 
         if not self._game.can_activate(position) and not self._lightning:
             messagebox.showwarning("Invalid Activation",
@@ -169,9 +168,7 @@ class LoloApp(BaseLoloApp):
         if self.get_game() == "Objective":
             self._game.set_moves_remaining(game_objective.ObjectiveGame.MOVES_REMAINING)
             self._StatusBar.reset_objective()
-            self._StatusBar.update_objectives(self._game.get_static_objectives())
-            print(self._game.get_objectives())
-            
+            self._StatusBar.update_objectives(self._game.get_objectives())
         self._game.reset()
         self._grid_view.draw(self._game.grid)
         self._lightning_available = 1
@@ -236,6 +233,16 @@ class StatusBar(tk.Frame):
             1: "Red",
             2: "Blue",
             3: "Yellow",
+            4: "Blue purple",
+            5: "Pink",
+            6: "Orange",
+            7: "Dark Grey",
+            8: "Green",
+            9: "Brown",
+            10: "Dark Blue",
+            11: "Pale Blue",
+            12: "Beige",
+            13: "Lime"
         }
         retrieved_objectives = False
         if not retrieved_objectives:
@@ -364,7 +371,7 @@ class HighScore(HighScoreManager):
         super().__init__(gamemode=GameMode.GAME_MODE)
 
         self._master = master
-        self._master.title("High Scores :: Lolo")
+        self._master.title("Leaderboards :: Lolo")
 
         self._best_player = self.get_sorted_data()
         self._best_player_label = tk.Label(self._master,
