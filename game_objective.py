@@ -1,26 +1,9 @@
-"""Modelling classes for Objective game mode."""
-
 import game_regular
 import json
 
 __author__ = "<Your name here>"
 __email__ = "<Your student email here>"
 __version__ = "1.1.2"
-
-
-class ObjectiveTile(game_regular.RegularTile):
-    """Tile whose value & type are equal, incrementing by one when joined."""
-
-    def __init__(self, type, value=1):
-        """Constructor
-
-        Parameters:
-             value (int): The tile's value.
-        """
-        super().__init__(type, value)
-        self._value = value
-        self._type = type
-
 
 class ObjectiveGame(game_regular.RegularGame):
 
@@ -53,17 +36,6 @@ class ObjectiveGame(game_regular.RegularGame):
             data = json.load(json_data)
             json_data.close()
         return data
-
-    def _construct_tile(self, type, position, *args, **kwargs):
-        """(LuckyTile) Returns a new tile from the generator's selection.
-
-        Parameters:
-            type (*): The type of the tile.
-            position (tuple<int, int>): The position the tile will initially exist in. Unused.
-            *args: Extra positional arguments for the tile.
-            **kwargs: Extra keyword arguments for the tile.
-        """
-        return ObjectiveTile(type, *args, **kwargs)
 
     def check_objectives(self):
         objective = []
