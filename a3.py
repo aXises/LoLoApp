@@ -493,7 +493,6 @@ class AutoPlayingGame(BaseLoloApp):
             self._game = GameMode.get_game()
             self._game_mode_selection = GameMode.GAME_MODE
             self.repack()
-        self._master.after(2000, self.check_changes)
 
     def game_over(self):
         """Handles the game ending."""
@@ -659,11 +658,7 @@ class GameMode:
         Gets the currently active game mode.
         
         Returns:
-             game_regular.RegularGame() (model.AbstractGame): Regular game.
-             Make13Game() (model.AbstractGame): Make 13 game.
-             Lucky7Game() (model.AbstractGame): Lucky 7 game.
-             UnlimitedGame() (model.AbstractGame): Unlimited game.
-             game_objective.ObjectiveGame() (model.AbstractGame): Objective game.
+             (model.AbstractGame): The game object.
         """
 
         if cls.GAME_MODE == "regular":

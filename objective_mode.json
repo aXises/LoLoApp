@@ -5,5 +5,5 @@
     "size": [6, 6],
     "grid": "None",
     "objectives": [[1, 10], [2, 15], [3, 25]],
-    "limit": 25
+    "limit": 40
 }
