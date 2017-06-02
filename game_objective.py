@@ -21,11 +21,13 @@ class ObjectiveTile(game_regular.RegularTile):
         self._value = value
         self._type = type
 
+
 class ObjectiveGame(game_regular.RegularGame):
 
     GAME_NAME = "Objective"
     OBJECTIVES = []
     MOVES_REMAINING = 20
+    GRID = []
 
     def __init__(self, size=(6,6), types=3, min_group=2):
         data = self.load()
@@ -39,11 +41,13 @@ class ObjectiveGame(game_regular.RegularGame):
 
         self.set_objectives(self._objectives)
 
+        if data["grid"] != "None":
+            self.set_grid(data["grid"])
+
         super().__init__(data["size"], data["types"], data["min_group"])
 
-        self.set_objectives(self.check_objectives())
-
-    def load(self):
+    @staticmethod
+    def load():
         """Loads the highscore json file."""
         with open("objective_mode.json") as json_data:
             data = json.load(json_data)
@@ -68,23 +72,24 @@ class ObjectiveGame(game_regular.RegularGame):
                 for position in group:
                     cell = self.grid[position]
                     for type, value in self.get_objectives():
-                        #print("obj|", type, "in-grid|", cell.get_type(), "obj|", value, "in-grid|", cell.get_value())
                         if type == cell.get_type() and value <= cell.get_value():
-                            #print("------------> type eq", type, cell.get_type())
-                            #print("------------> val eq", value, cell.get_value())
-                            #print("objective completed for", type, value)
                             objective.append((type, value))
                             if len(objective) > 0:
-                                #print("remain", set(self.get_objectives()) - set(objective))
                                 return set(self.get_objectives()) - set(objective)
             break
         return self.get_objectives()
 
     def activate(self, position):
-        print(self)
         self._moves_remaining -= 1
-        #self.set_objectives(self.check_objectives())
         return game_regular.RegularGame.activate(self, position)
+
+    @classmethod
+    def set_grid(cls, grid):
+        cls.GRID = grid
+
+    @classmethod
+    def get_grid(cls):
+        return cls.GRID
 
     @classmethod
     def set_objectives(cls, objectives):

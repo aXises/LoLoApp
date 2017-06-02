@@ -3,7 +3,7 @@
     "min_group": 3,
     "types": 3,
     "size": [6, 6],
-    "starting_grid": "None",
-    "objectives": [[1, 5], [2, 5], [3, 5]],
+    "grid": "None",
+    "objectives": [[1, 10], [2, 15], [3, 25]],
     "limit": 25
 }

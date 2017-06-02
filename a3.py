@@ -39,10 +39,6 @@ class LoloApp(BaseLoloApp):
         self._StatusBar = StatusBar(self._master)
         self._StatusBar.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        if self.get_game() == "Objective":
-            self._StatusBar.objective_mode(self._game.get_moves_remaining())
-            self._StatusBar.update_objectives(self._game.get_objectives())
-
         menubar = tk.Menu(self._master)
         self._master.config(menu=menubar)
 
@@ -56,7 +52,14 @@ class LoloApp(BaseLoloApp):
 
         self._master.title('Lolo :: %s Mode' % self._game.GAME_NAME)
 
-        super().__init__(self._master, self._game)
+        if self.get_game() == "Objective":
+            self._StatusBar.objective_mode(self._game.get_moves_remaining())
+            self._StatusBar.update_objectives(self._game.get_objectives())
+            if self._game.get_grid() != "None":
+                grid = self._game.deserialize(self._game.get_grid())
+                super().__init__(self._master, grid)
+        else:
+            super().__init__(self._master, self._game)
 
         self._lightning_available = 1
         self._lightning_button = tk.Button(self._master,
@@ -135,8 +138,6 @@ class LoloApp(BaseLoloApp):
             self._game.set_objectives(self._game.check_objectives())
             self._StatusBar.compare_objective(self._game.get_objectives())
             self._StatusBar.check_game_win()
-            print(self._game.get_objectives())
-            print(self._game.get_static_objectives())
 
         if not self._game.can_activate(position) and not self._lightning:
             messagebox.showwarning("Invalid Activation",
