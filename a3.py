@@ -31,9 +31,9 @@ class LoloApp(BaseLoloApp):
         """Constructor
         
         Parameters:
-        master (tk.Tk|tk.Frame): The parent widget.
-        game (model.AbstractGame): The game to play.
-        player_name (str): The player's name.
+            master (tk.Tk|tk.Frame): The parent widget.
+            game (model.AbstractGame): The game to play.
+            player_name (str): The player's name.
         """
 
         self._game = game
@@ -82,9 +82,7 @@ class LoloApp(BaseLoloApp):
         self.bind_keys()
 
     def return_to_menu(self):
-        """
-        Returns to the menu.
-        """
+        """Returns to the menu."""
 
         self._master.destroy()
         main()
@@ -93,6 +91,7 @@ class LoloApp(BaseLoloApp):
     def get_game(cls):
         """
         Gets the current game name.
+        
         Returns:
             (str) Returns the name of the current game
         """
@@ -104,16 +103,14 @@ class LoloApp(BaseLoloApp):
         """
         Sets the game name.
         
-        Parameter:
+        Parameters:
             game_mode (model.AbstractGame): The game currently active.
         """
 
         cls.GAME_NAME = game_mode
 
     def toggle_lightning(self):
-        """
-        Toggles the lightning mode      .   
-        """
+        """Toggles the lightning mode."""
 
         if not self._lightning:
             self.lightning_on()
@@ -123,27 +120,21 @@ class LoloApp(BaseLoloApp):
         self._lightning = not self._lightning
 
     def lightning_on(self):
-        """
-        Turns the lightning mode on.
-        """
+        """Turns the lightning mode on."""
 
         self._grid_view.off('select', self.activate)
         self._grid_view.on('select', self.remove)
         self.update_active_lightning()
 
     def lightning_off(self):
-        """
-        Turns the lightning mode off.
-        """
+        """Turns the lightning mode off."""
 
         self._grid_view.on('select', self.activate)
         self._grid_view.off('select', self.remove)
         self.update_lightning()
 
     def lightning_disabled(self):
-        """
-        Disables the lightning button.
-        """
+        """Disables the lightning button."""
 
         self._lightning_button.config(state="disabled")
         self.update_active_lightning()
@@ -151,26 +142,20 @@ class LoloApp(BaseLoloApp):
         self._lightning_is_disabled = True
 
     def lightning_enabled(self):
-        """
-        Enables the lightning button.
-        """
+        """Enables the lightning button."""
 
         self._lightning_button.config(state="normal")
         self.update_lightning()
         self._lightning_is_disabled = False
 
     def update_lightning(self):
-        """
-        Updates the standard lightning text.
-        """
+        """Updates the standard lightning text."""
 
         self._lightning_button.config(text="Lightning %i" %
                                       self._lightning_available)
 
     def update_active_lightning(self):
-        """
-        Updates the active lightning text.
-        """
+        """Updates the active lightning text."""
 
         self._lightning_button.config(text="Lightning ACTIVE %i" %
                                       self._lightning_available)
@@ -178,8 +163,8 @@ class LoloApp(BaseLoloApp):
     def remove(self, *positions):
         """Attempts to remove the tiles at the given positions.
 
-           Parameters:
-               *positions (tuple<int, int>): The position to activate.
+        Parameters:
+            *positions (tuple<int, int>): The position to activate.
         """
 
         super().remove(*positions)
@@ -223,7 +208,7 @@ class LoloApp(BaseLoloApp):
         Updates the user's score or if in objective mode, updates the user's
         remaining moves.
         
-        Parameter:
+        Parameters:
             points (int): The player's current score.
         """
 
@@ -294,7 +279,7 @@ class StatusBar(tk.Frame):
     def __init__(self, master):
         """Constructor
         
-        Parameter:
+        Parameters:
             master (tk.Tk|tk.Frame): The parent widget.
         """
 
@@ -324,7 +309,7 @@ class StatusBar(tk.Frame):
         """
         Updates the score label.
         
-        Parameter:
+        Parameters:
             points (int): The player's current score.
         """
 
@@ -334,7 +319,7 @@ class StatusBar(tk.Frame):
         """
         Updates the objective labels in objective mode.
         
-        Parameter:
+        Parameters:
             objectives (list): List of objectives to display.
         """
 
@@ -376,7 +361,7 @@ class StatusBar(tk.Frame):
         Compares the objectives which the player has completed with the 
         initial objectives and removes labels accordingly.
         
-        Parameter:
+        Parameters:
             retrieved (list): The list of retrieved objectives.
         """
 
@@ -401,7 +386,7 @@ class StatusBar(tk.Frame):
         """
         Updates the moves remaining in objective mode.
         
-        Parameter:
+        Parameters:
             moves (int): The amount of moves remaining.
         """
 
@@ -422,7 +407,7 @@ class LoloLogo(tk.Canvas):
     def __init__(self, master):
         """Constructor
         
-        Parameter:
+        Parameters:
             master (tk.Tk|tk.Frame): The parent widget.
         """
 
@@ -452,8 +437,9 @@ class AutoPlayingGame(BaseLoloApp):
 
     def __init__(self, master):
         """Constructor
-        
-        master (tk.Tk|tk.Frame): The parent widget.
+
+        Parameters:
+            master (tk.Tk|tk.Frame): The parent widget.
         """
 
         super().__init__(master)
@@ -514,7 +500,8 @@ class AutoPlayingGame(BaseLoloApp):
         self._grid_view.draw(self._game.grid)
 
     def score(self, points):
-        """Handles change in score. This method stops values printing 
+        """
+        Handles change in score. This method stops values printing 
         in the console.
         """
 
@@ -527,7 +514,8 @@ class HighScore(HighScoreManager):
     def __init__(self, master):
         """
         Constructor
-        
+
+        Parameters:
         master (tk.Tk|tk.Frame): The parent widget.
         """
 
@@ -570,9 +558,9 @@ class HighScore(HighScoreManager):
         """
         Adds a new row consisting of player information.
         
-        Parameter:
-        name (str): The player's name.
-        score (int): The player's score.
+        Parameters:
+            name (str): The player's name.
+            score (int): The player's score.
         """
 
         self._new_frame[self._row] = tk.Frame(self._master)
@@ -595,8 +583,8 @@ class Replay:
         Constructor
         
         Parameters:
-        master (tk.Tk|tk.Frame): The parent widget.
-        game (model.AbstractGame): The static game to display.
+            master (tk.Tk|tk.Frame): The parent widget.
+            game (model.AbstractGame): The static game to display.
         """
 
         grid_view = view.GridView(master, game.grid.size())
@@ -612,8 +600,9 @@ class GameMode:
     def __init__(self, master):
         """
         Constructor.
-        
-        master (tk.Tk|tk.Frame): The parent widget.
+
+        Parameters:
+            master (tk.Tk|tk.Frame): The parent widget.
         """
 
         self._master = master
@@ -648,7 +637,7 @@ class GameMode:
     def set_class_var(cls, game_mode):
         """Updates the currently active game mode.
         
-        Parameter:
+        Parameters:
             game_mode (str): The game mode which was selected.
         """
         cls.GAME_MODE = game_mode

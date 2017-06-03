@@ -8,9 +8,9 @@ __version__ = "1.1.2"
 class ObjectiveGame(game_regular.RegularGame):
     """Objective game mode.
     
-    Specific tiles types must be combined to achieve a objective.
+       Specific tiles types must be combined to achieve a objective.
     
-    The game is won when all objectives are completed.
+       The game is won when all objectives are completed.
     """
 
     GAME_NAME = "Objective"
@@ -21,14 +21,14 @@ class ObjectiveGame(game_regular.RegularGame):
     def __init__(self, size=(6,6), types=3, min_group=2):
         """Constructor
 
-        Parameters which to default to if JSON data for objective game mode
-        cannot be loaded.
+           Parameters which to default to if JSON data for objective game mode
+           cannot be loaded.
         
-        Parameters:
-            size (tuple<int, int>): The number of (rows, columns) in the game.
-            initial_tiles (int): The number of tiles.
-            min_group (int): The minimum number of tiles required for a
-                             connected group to be joinable.
+           Parameters:
+               size (tuple<int, int>): The number of (rows, columns) in the game.
+               initial_tiles (int): The number of tiles.
+               min_group (int): The minimum number of tiles required for a
+                                connected group to be joinable.
         """
 
         data = self.load()
@@ -56,8 +56,8 @@ class ObjectiveGame(game_regular.RegularGame):
         return data
 
     def check_objectives(self):
-        """
-        Checks the objectives currently active or/if has been completed.
+        """Checks the objectives currently active or/if has been completed.
+
         Returns:
             (list): The objectives remaining.
         """
@@ -94,7 +94,7 @@ class ObjectiveGame(game_regular.RegularGame):
     def set_grid(cls, grid):
         """Sets the game grid.
         
-        Parameter:
+        Parameters:
             grid (list): The grid to be serialized in to the game.
         """
 
@@ -115,7 +115,7 @@ class ObjectiveGame(game_regular.RegularGame):
     def set_objectives(cls, objectives):
         """Sets the game objectives.
 
-        Parameter:
+        Parameters:
             objectives (list): The objectives for the game.
         """
 
@@ -145,7 +145,7 @@ class ObjectiveGame(game_regular.RegularGame):
         """
         Sets the moves remaining.
 
-        Parameter:
+        Parameters:
             moves (int): The moves remaining for the player
         """
         
