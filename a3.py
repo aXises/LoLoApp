@@ -557,10 +557,11 @@ class HighScore(HighScoreManager):
         self._frames = 0
         self._new_frame = []
         while self._frames < len(self.get_data()):
-            self._new_frame.append("frame" + str(self._frames))
-            self._frames += 1
             if self._frames > 15:
                 break
+            self._new_frame.append("frame" + str(self._frames))
+            self._frames += 1
+            
 
         for data in self.get_sorted_data():
             self.add_row(data['name'], data['score'])
