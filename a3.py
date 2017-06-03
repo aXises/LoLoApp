@@ -30,10 +30,10 @@ class LoloApp(BaseLoloApp):
     def __init__(self, master, game, player_name):
         """Constructor
         
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
-            game (model.AbstractGame): The game to play.
-            player_name (str): The player's name.
+           Parameters:
+               master (tk.Tk|tk.Frame): The parent widget.
+               game (model.AbstractGame): The game to play.
+               player_name (str): The player's name.
         """
 
         self._game = game
@@ -89,28 +89,26 @@ class LoloApp(BaseLoloApp):
 
     @classmethod
     def get_game(cls):
-        """
-        Gets the current game name.
-        
-        Returns:
-            (str) Returns the name of the current game
+        """Gets the current game name.
+
+           Returns:
+               (str) Returns the name of the current game
         """
 
         return cls.GAME_NAME
 
     @classmethod
     def set_game(cls, game_mode):
-        """
-        Sets the game name.
+        """Sets the game name.
         
-        Parameters:
-            game_mode (model.AbstractGame): The game currently active.
+           Parameters:
+               game_mode (model.AbstractGame): The game currently active.
         """
 
         cls.GAME_NAME = game_mode
 
     def toggle_lightning(self):
-        """Toggles the lightning mode."""
+        """Toggles the lightning mode.   """
 
         if not self._lightning:
             self.lightning_on()
@@ -163,8 +161,8 @@ class LoloApp(BaseLoloApp):
     def remove(self, *positions):
         """Attempts to remove the tiles at the given positions.
 
-        Parameters:
-            *positions (tuple<int, int>): The position to activate.
+           Parameters:
+               *positions (tuple<int, int>): The position to activate.
         """
 
         super().remove(*positions)
@@ -181,8 +179,8 @@ class LoloApp(BaseLoloApp):
     def activate(self, position):
         """Attempts to activate the tile at the given position.
 
-        Parameters:
-            position (tuple<int, int>): The position to activate.
+           Parameters:
+               position (tuple<int, int>): The position to activate.
         """
 
         if self.get_game() == "Objective":
@@ -204,12 +202,11 @@ class LoloApp(BaseLoloApp):
         super().activate(position)
 
     def score(self, points):
-        """
-        Updates the user's score or if in objective mode, updates the user's
-        remaining moves.
+        """Updates the user's score or if in objective mode, updates the user's
+           remaining moves.
         
-        Parameters:
-            points (int): The player's current score.
+            Parameters:
+                points (int): The player's current score.
         """
 
         if self.get_game() == "Objective":
@@ -279,8 +276,8 @@ class StatusBar(tk.Frame):
     def __init__(self, master):
         """Constructor
         
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
+           Parameters:
+               master (tk.Tk|tk.Frame): The parent widget.
         """
 
         super().__init__(master)
@@ -306,21 +303,19 @@ class StatusBar(tk.Frame):
             self._won = False
 
     def update_score(self, points):
-        """
-        Updates the score label.
+        """Updates the score label.
         
-        Parameters:
-            points (int): The player's current score.
+           Parameters:
+               points (int): The player's current score.
         """
 
         self._score.config(text="Score: %i" % points)
 
     def update_objectives(self, objectives):
-        """
-        Updates the objective labels in objective mode.
+        """Updates the objective labels in objective mode.
         
-        Parameters:
-            objectives (list): List of objectives to display.
+           Parameters:
+               objectives (list): List of objectives to display.
         """
 
         colours = {
@@ -357,12 +352,11 @@ class StatusBar(tk.Frame):
             del self._construct_list[0]
 
     def compare_objective(self, retrieved):
-        """
-        Compares the objectives which the player has completed with the 
-        initial objectives and removes labels accordingly.
+        """Compares the objectives which the player has completed with the 
+           initial objectives and removes labels accordingly.
         
-        Parameters:
-            retrieved (list): The list of retrieved objectives.
+           Parameters:
+               retrieved (list): The list of retrieved objectives.
         """
 
         for objective in self._objectives:
@@ -370,9 +364,8 @@ class StatusBar(tk.Frame):
                 self._active_obj[objective[0]].destroy()
 
     def check_game_win(self):
-        """
-        Checks whether if the player has completed all objective mode 
-        objectives. 
+        """Checks whether if the player has completed all objective mode 
+           objectives. 
         """
         
         if len(game_objective.ObjectiveGame.get_objectives()) < 1 and \
@@ -383,19 +376,16 @@ class StatusBar(tk.Frame):
             self._won = True
 
     def objective_mode_moves(self, moves):
-        """
-        Updates the moves remaining in objective mode.
+        """Updates the moves remaining in objective mode.
         
-        Parameters:
-            moves (int): The amount of moves remaining.
+           Parameters:
+               moves (int): The amount of moves remaining.
         """
 
         self._score.config(text="Moves Remaining: %i" % moves)
 
     def reset_objective(self):
-        """
-        Resets the objective labels.
-        """
+        """Resets the objective labels."""
 
         for label in self._active_obj:
             self._active_obj[label].destroy()
@@ -407,8 +397,8 @@ class LoloLogo(tk.Canvas):
     def __init__(self, master):
         """Constructor
         
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
+           Parameters:
+               master (tk.Tk|tk.Frame): The parent widget.
         """
 
         super().__init__(master)
@@ -438,8 +428,8 @@ class AutoPlayingGame(BaseLoloApp):
     def __init__(self, master):
         """Constructor
 
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
+           Parameters:
+               master (tk.Tk|tk.Frame): The parent widget.
         """
 
         super().__init__(master)
@@ -450,9 +440,8 @@ class AutoPlayingGame(BaseLoloApp):
         self._grid_view.off('select', self.activate)
 
     def play(self):
-        """
-        Attempts to auto play the game by selecting random positions to
-        activate.
+        """Attempts to auto play the game by selecting random positions to
+           activate.
         """
 
         row_size, col_size = self._game.grid.size()
@@ -469,9 +458,8 @@ class AutoPlayingGame(BaseLoloApp):
             self.reset()
 
     def check_changes(self):
-        """
-        Checks for changes between the game mode selected and the game mode of
-        the currently active auto playing game.
+        """Checks for changes between the game mode selected and the game mode of
+           the currently active auto playing game.
         """
 
         new_mode = GameMode.GAME_MODE
@@ -500,8 +488,7 @@ class AutoPlayingGame(BaseLoloApp):
         self._grid_view.draw(self._game.grid)
 
     def score(self, points):
-        """
-        Handles change in score. This method stops values printing 
+        """Handles change in score. This method stops values printing 
         in the console.
         """
 
@@ -512,11 +499,10 @@ class HighScore(HighScoreManager):
     """High score window"""
 
     def __init__(self, master):
-        """
-        Constructor
-
-        Parameters:
-        master (tk.Tk|tk.Frame): The parent widget.
+        """Constructor
+        
+           Parameters:
+               master (tk.Tk|tk.Frame): The parent widget.
         """
 
         super().__init__(gamemode=GameMode.GAME_MODE)
@@ -555,12 +541,11 @@ class HighScore(HighScoreManager):
             self.add_row(data['name'], data['score'])
 
     def add_row(self, name, score):
-        """
-        Adds a new row consisting of player information.
+        """Adds a new row consisting of player information.
         
-        Parameters:
-            name (str): The player's name.
-            score (int): The player's score.
+           Parameters:
+              name (str): The player's name.
+              score (int): The player's score.
         """
 
         self._new_frame[self._row] = tk.Frame(self._master)
@@ -579,12 +564,11 @@ class Replay:
     """Static replay of the player with the highest score."""
 
     def __init__(self, master, game):
-        """
-        Constructor
+        """Constructor
         
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
-            game (model.AbstractGame): The static game to display.
+           Parameters:
+              master (tk.Tk|tk.Frame): The parent widget.
+              game (model.AbstractGame): The static game to display.
         """
 
         grid_view = view.GridView(master, game.grid.size())
@@ -598,11 +582,10 @@ class GameMode:
     GAME_MODE = "regular"
 
     def __init__(self, master):
-        """
-        Constructor.
-
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
+        """Constructor.
+        
+           Parameters:
+              master (tk.Tk|tk.Frame): The parent widget.
         """
 
         self._master = master
@@ -637,18 +620,17 @@ class GameMode:
     def set_class_var(cls, game_mode):
         """Updates the currently active game mode.
         
-        Parameters:
-            game_mode (str): The game mode which was selected.
+           Parameters:
+               game_mode (str): The game mode which was selected.
         """
         cls.GAME_MODE = game_mode
 
     @classmethod
     def get_game(cls):
-        """
-        Gets the currently active game mode.
+        """Gets the currently active game mode.
         
-        Returns:
-             (model.AbstractGame): The game object.
+           Returns:
+               (model.AbstractGame): The game object.
         """
 
         if cls.GAME_MODE == "regular":
@@ -669,8 +651,8 @@ class LoadingScreen:
     def __init__(self, master):
         """Constructor
 
-        Parameters:
-            master (tk.Tk|tk.Frame): The parent widget.
+           Parameters:
+               master (tk.Tk|tk.Frame): The parent widget.
         """
 
         self._master = master
